@@ -28,36 +28,56 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nombres' => ['required', 'string', 'max:100'],
-            'apellidos' => ['required', 'string', 'max:100'],
+            'nombres' => ['required', 'string', 'max:100', 'regex:/^[\p{L} ]+$/u'],
+            'apellidos' => ['required', 'string', 'max:100', 'regex:/^[\p{L} ]+$/u'],
 
-            'ci' => ['required', 'string', 'max:20', 'unique:users,ci'],
+            'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9\-]+$/', 'unique:users,ci'],
             'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
 
-            'telefono' => ['nullable', 'string', 'max:30'],
+            'telefono' => ['nullable', 'string', 'max:30', 'regex:/^[0-9 +\-]+$/'],
             'direccion' => ['nullable', 'string', 'max:200'],
-            'fecha_nacimiento' => ['nullable', 'date'],
+            'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
 
             'colegio_origen' => ['nullable', 'string', 'max:150'],
             'anio_bachillerato' => ['nullable', 'integer', 'min:1950', 'max:' . now()->year],
-            'estado_academico' => ['nullable', 'string', 'max:50'],
+            'estado_academico' => ['nullable', 'string', 'in:nuevo,bachiller,universitario,profesional'],
 
             'oferta_academica_id' => ['nullable', 'exists:oferta_academicas,id'],
 
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'nombres.required' => 'Debe ingresar sus nombres.',
+            'nombres.regex' => 'Los nombres solo pueden contener letras y espacios.',
+            'nombres.max' => 'Los nombres no pueden tener más de 100 caracteres.',
             'apellidos.required' => 'Debe ingresar sus apellidos.',
-            'ci.required' => 'Debe ingresar su CI.',
+            'apellidos.regex' => 'Los apellidos solo pueden contener letras y espacios.',
+            'apellidos.max' => 'Los apellidos no pueden tener más de 100 caracteres.',
+            'ci.required' => 'Debe ingresar su Cédula de identidad.',
+            'ci.regex' => 'La cédula solo puede contener números y guiones.',
             'ci.unique' => 'Este CI ya está registrado.',
+            'ci.max' => 'La cédula no puede tener más de 20 caracteres.',
             'email.required' => 'Debe ingresar su correo electrónico.',
-            'email.email' => 'Debe ingresar un correo válido.',
+            'email.email' => 'Debe ingresar un correo electrónico válido.',
             'email.unique' => 'Este correo ya está registrado.',
+            'email.max' => 'El correo no puede tener más de 150 caracteres.',
+            'telefono.regex' => 'El teléfono solo puede contener números, espacios, guiones o +.',
+            'telefono.max' => 'El teléfono no puede tener más de 30 caracteres.',
+            'direccion.max' => 'La dirección no puede tener más de 200 caracteres.',
+            'fecha_nacimiento.date' => 'Debe ingresar una fecha de nacimiento válida.',
+            'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser futura.',
+            'colegio_origen.max' => 'El nombre del colegio no puede tener más de 150 caracteres.',
+            'anio_bachillerato.integer' => 'El año de bachillerato debe ser un número válido.',
+            'anio_bachillerato.min' => 'El año de bachillerato no puede ser anterior a 1950.',
+            'anio_bachillerato.max' => 'El año de bachillerato no puede ser posterior a ' . now()->year . '.',
+            'estado_academico.in' => 'Debe seleccionar un estado académico válido.',
             'password.required' => 'Debe ingresar una contraseña.',
             'password.confirmed' => 'La confirmación de contraseña no coincide.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.mixedCase' => 'La contraseña debe incluir mayúsculas y minúsculas.',
+            'password.numbers' => 'La contraseña debe incluir al menos un número.',
+            'password.symbols' => 'La contraseña debe incluir al menos un símbolo.',
             'oferta_academica_id.exists' => 'La oferta académica seleccionada no existe.',
         ]);
-
         $user = DB::transaction(function () use ($request) {
             $rolAlumno = Role::where('nombre', 'alumno')->first();
 

@@ -36,10 +36,13 @@
                 {{-- Encabezado --}}
                 <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-violet-700 px-8 py-8 text-center text-white">
 
-                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-xl font-black shadow-lg backdrop-blur-sm">
-                        IA
-                    </div>
-
+                    
+                    <img
+                        src="{{ asset('img/logo_2.png') }}"
+                        alt="Logo Instituto Andrés Ibáñez"
+                        class="mx-auto h-20 w-auto object-contain"
+                    >
+                    
                     <h1 class="mt-5 text-2xl font-black">
                         Iniciar sesión
                     </h1>

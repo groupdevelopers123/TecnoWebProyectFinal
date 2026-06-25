@@ -1,10 +1,39 @@
 import "./bootstrap";
+import "../css/app.css";
 import "../css/inertia.css";
 
 import { createApp, h } from "vue";
-import { createInertiaApp } from "@inertiajs/vue3";
+import { createInertiaApp, router } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
+
+import {
+    applyVisualPreferences,
+    getServerPreferences,
+    readStoredPreferences,
+    resolvePreferences,
+} from "./preferences";
+
+/**
+ * Retorna el identificador del usuario actual.
+ */
+function getCurrentUserId(pageProps = {}) {
+    return pageProps?.auth?.user?.id ?? null;
+}
+
+/**
+ * Aplica las preferencias correspondientes a una página de Inertia.
+ */
+function applyPreferencesFromPage(pageProps = {}) {
+    const userId = getCurrentUserId(pageProps);
+    const serverPreferences = getServerPreferences(pageProps);
+
+    const effectivePreferences = resolvePreferences(serverPreferences, userId);
+
+    applyVisualPreferences(effectivePreferences);
+
+    return effectivePreferences;
+}
 
 createInertiaApp({
     title: (title) => {
@@ -20,69 +49,65 @@ createInertiaApp({
         ),
 
     setup({ el, App, props, plugin }) {
-        const aplicacion = createApp({
+        let currentPageProps = props.initialPage?.props ?? {};
+
+        /*
+         * Se aplican las preferencias antes de montar Vue.
+         * Esto reduce el parpadeo entre modo claro y oscuro.
+         */
+        applyPreferencesFromPage(currentPageProps);
+
+        const application = createApp({
             render: () => h(App, props),
         });
 
-        aplicacion.use(plugin);
-        aplicacion.use(ZiggyVue);
+        application.use(plugin);
+        application.use(ZiggyVue);
 
-        aplicacion.mount(el);
+        application.mount(el);
 
-        const applyPreferences = (preferences) => {
-            const root = document.documentElement;
-
-            if (preferences?.theme) {
-                root.setAttribute("data-theme", preferences.theme);
-            }
-
-            if (preferences?.mode) {
-                root.setAttribute("data-mode", preferences.mode);
-            }
-
-            if (preferences?.font_size) {
-                root.style.setProperty(
-                    "--base-font-size",
-                    `${preferences.font_size}px`,
-                );
-                document.body.style.fontSize = `${preferences.font_size}px`;
-            }
-
-            if (preferences?.contrast === "high") {
-                root.classList.add("high-contrast");
-            } else {
-                root.classList.remove("high-contrast");
-            }
-        };
-
-        try {
-            const preferences =
-                props.initialPage?.props?.auth?.user?.preferences ||
-                props.initialPage?.props?.preferences ||
-                null;
-
-            applyPreferences(preferences);
-        } catch (e) {
-            console.error(e);
-        }
-
-        window.addEventListener("inertia:navigate", (event) => {
+        /*
+         * Cada vez que Inertia cambia de página se vuelven a aplicar
+         * las preferencias del usuario actual.
+         */
+        router.on("navigate", (event) => {
             try {
-                const pageProps = event.detail.page.props || {};
-                const preferences =
-                    pageProps.auth?.user?.preferences ||
-                    pageProps.preferences ||
-                    null;
-                applyPreferences(preferences);
+                currentPageProps = event.detail?.page?.props ?? {};
+
+                applyPreferencesFromPage(currentPageProps);
             } catch (error) {
-                console.error(error);
+                console.error(
+                    "No se pudieron aplicar las preferencias después de navegar:",
+                    error,
+                );
             }
         });
 
-        return aplicacion;
+        /*
+         * Sincronización entre pestañas del navegador.
+         */
+        window.addEventListener("storage", () => {
+            try {
+                const userId = getCurrentUserId(currentPageProps);
+
+                const storedPreferences = readStoredPreferences(userId);
+
+                if (storedPreferences) {
+                    applyVisualPreferences(storedPreferences);
+                }
+            } catch (error) {
+                console.error(
+                    "No se pudieron sincronizar las preferencias:",
+                    error,
+                );
+            }
+        });
+
+        return application;
     },
 
     progress: {
         color: "#2563eb",
+        showSpinner: true,
     },
 });

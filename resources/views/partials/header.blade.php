@@ -16,21 +16,28 @@
     {{-- Barra principal --}}
     <div class="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-6 lg:px-8">
 
-        {{-- Logo --}}
-        <a href="{{ route('welcome') }}" class="flex flex-shrink-0 items-center gap-3">
-            <div class="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-blue-700 to-blue-500 text-sm font-extrabold tracking-wide text-white shadow-[0_2px_8px_rgba(37,99,235,0.28)]">
-                IA
-                <span class="pointer-events-none absolute inset-0 rounded-[13px] border border-white/20"></span>
-            </div>
-            <div>
-                <p class="text-[15px] font-bold leading-tight tracking-tight text-slate-900">
-                    Instituto Andrés Ibáñez
-                </p>
-                <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
-                    Sistema Académico Web
-                </p>
-            </div>
-        </a>
+{{-- Logo --}}
+<a
+    href="{{ route('welcome') }}"
+    class="-ml-2 flex shrink-0 items-center gap-3"
+>
+    <img
+        src="{{ asset('img/logo_2.png') }}"
+        alt="Logo Instituto Andrés Ibáñez"
+        class="h-12 w-auto shrink-0 object-contain sm:h-14"
+    >
+
+    <div class="hidden sm:block">
+        <p class="text-[15px] font-bold leading-tight tracking-tight text-slate-900">
+            Instituto Andrés Ibáñez
+        </p>
+
+        <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+            Sistema Académico Web
+        </p>
+    </div>
+</a>
+
 
         {{-- Nav desktop --}}
         <nav class="hidden flex-1 items-center justify-center gap-0.5 lg:flex">

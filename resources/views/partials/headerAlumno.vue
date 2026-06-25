@@ -181,14 +181,14 @@ onBeforeUnmount(() => {
             <!-- Logo -->
             <button
                 type="button"
-                class="flex shrink-0 items-center gap-3 text-left"
+                class="flex shrink-0 cursor-pointer items-center gap-3 text-left"
                 @click="seleccionarSeccion('inicio', 'Inicio')"
             >
-                <div
-                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-blue-500 text-sm font-black tracking-wide text-white shadow-lg shadow-blue-200"
-                >
-                    IA
-                </div>
+                <img
+                    src="/img/logo_2.png"
+                    alt="Logo Instituto Andrés Ibáñez"
+                    class="h-12 w-auto max-w-[70px] shrink-0 object-contain sm:h-14"
+                />
 
                 <div class="hidden sm:block">
                     <p

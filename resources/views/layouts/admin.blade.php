@@ -14,9 +14,11 @@
 
     <aside class="fixed left-0 top-0 hidden h-screen w-72 flex-col overflow-y-auto bg-slate-950 px-5 py-6 text-white shadow-2xl lg:flex">
         <div class="mb-8">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-black text-white shadow-lg shadow-blue-600/30">
-                IA
-            </div>
+            <img
+                        src="{{ asset('img/logo_2.png') }}"
+                        alt="Logo Instituto Andrés Ibáñez"
+                        class="mx-auto h-20 w-auto object-contain"
+                    >
 
             <h2 class="mt-4 text-xl font-bold">
                 Instituto Andrés Ibáñez

@@ -1,75 +1,2331 @@
 @import "tailwindcss";
 
 @source "../views/**/*.vue";
-@source "../js/inertia.js";
+@source "../js/**/*.js";
+
+/* =========================================================
+   VARIABLES PREDETERMINADAS
+========================================================= */
+
+:root {
+    --base-font-size: 16px;
+
+    --page-bg: #eef2ff;
+
+    --surface-primary: #ffffff;
+    --surface-secondary: #f8fafc;
+    --surface-tertiary: #f1f5f9;
+    --surface-hover: #e8eef7;
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-disabled: #94a3b8;
+
+    --border-primary: #dbe3ee;
+    --border-secondary: #e2e8f0;
+
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: #dbeafe;
+    --accent-soft-hover: #bfdbfe;
+    --accent-text: #1e3a8a;
+
+    --header-bg: #ffffff;
+    --header-text: #0f172a;
+    --header-text-secondary: #64748b;
+    --header-border: #e2e8f0;
+
+    --success-bg: #ecfdf5;
+    --success-soft: #d1fae5;
+    --success-text: #047857;
+    --success-border: #a7f3d0;
+
+    --warning-bg: #fffbeb;
+    --warning-soft: #fef3c7;
+    --warning-text: #b45309;
+    --warning-border: #fde68a;
+
+    --danger-bg: #fef2f2;
+    --danger-soft: #fee2e2;
+    --danger-text: #b91c1c;
+    --danger-border: #fecaca;
+
+    --shadow-color: rgba(15, 23, 42, 0.12);
+}
+
+/* =========================================================
+   CONFIGURACIÓN BASE
+========================================================= */
 
 html {
     min-height: 100%;
+    font-size: var(--base-font-size);
+    background-color: var(--page-bg);
+    color-scheme: light;
 }
 
 body {
     min-height: 100vh;
     margin: 0;
+    background-color: var(--page-bg);
+    color: var(--text-primary);
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 }
 
-:root {
-    --base-font-size: 16px;
-    --bg-color: #ffffff;
-    --text-color: #111827;
+html[data-preferences-ready="true"] body,
+html[data-preferences-ready="true"] header,
+html[data-preferences-ready="true"] main,
+html[data-preferences-ready="true"] .bg-white,
+html[data-preferences-ready="true"] .bg-slate-50,
+html[data-preferences-ready="true"] .bg-slate-100,
+html[data-preferences-ready="true"] .visual-option {
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
 }
 
-[data-mode="dark"] {
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-}
-
-html[data-theme="ninos"] {
-    --accent: #ff7aa2;
-}
+/* =========================================================
+   TEMAS
+========================================================= */
 
 html[data-theme="adultos"] {
-    --accent: #2563eb;
+    /* Fondo general azul muy suave */
+    --page-bg: #eef3ff;
+
+    /* Tarjetas y contenedores */
+    --surface-primary: #fbfcff;
+    --surface-secondary: #f0f4fc;
+    --surface-tertiary: #dfe9fa;
+    --surface-hover: #cfddf4;
+
+    /* Textos */
+    --text-primary: #0b1f44;
+    --text-secondary: #29456f;
+    --text-muted: #567097;
+    --text-disabled: #8295b2;
+
+    /* Bordes */
+    --border-primary: #b9cbe6;
+    --border-secondary: #d4dfef;
+
+    /* Color principal */
+    --accent: #1e40af;
+    --accent-hover: #1e3a8a;
+    --accent-soft: #dbeafe;
+    --accent-soft-hover: #bfdbfe;
+    --accent-text: #0b2447;
+
+    /* Header azul oscuro */
+    --header-bg: #0b1f44;
+    --header-text: #ffffff;
+    --header-text-secondary: #c7d8f4;
+    --header-border: #1d3a67;
+
+    /* Estados */
+    --success-bg: #ecfdf5;
+    --success-soft: #d1fae5;
+    --success-text: #047857;
+    --success-border: #a7f3d0;
+
+    --warning-bg: #fffbeb;
+    --warning-soft: #fef3c7;
+    --warning-text: #b45309;
+    --warning-border: #fde68a;
+
+    --danger-bg: #fef2f2;
+    --danger-soft: #fee2e2;
+    --danger-text: #b91c1c;
+    --danger-border: #fecaca;
+
+    /* Sombra azul */
+    --shadow-color: rgba(30, 64, 175, 0.16);
 }
 
 html[data-theme="jovenes"] {
+    /* Fondo general turquesa muy suave */
+    --page-bg: #effcff;
+
+    /* Tarjetas y contenedores */
+    --surface-primary: #faffff;
+    --surface-secondary: #ecfeff;
+    --surface-tertiary: #cffafe;
+    --surface-hover: #a5f3fc;
+
+    /* Textos */
+    --text-primary: #083344;
+    --text-secondary: #155e75;
+    --text-muted: #0e7490;
+    --text-disabled: #4f94a8;
+
+    /* Bordes */
+    --border-primary: #a5f3fc;
+    --border-secondary: #cffafe;
+
+    /* Color principal */
     --accent: #06b6d4;
+    --accent-hover: #0891b2;
+    --accent-soft: #cffafe;
+    --accent-soft-hover: #a5f3fc;
+    --accent-text: #075985;
+
+    /* Header */
+    --header-bg: #cffafe;
+    --header-text: #083344;
+    --header-text-secondary: #155e75;
+    --header-border: #67e8f9;
+
+    /* Estados */
+    --success-bg: #ecfdf5;
+    --success-soft: #d1fae5;
+    --success-text: #047857;
+    --success-border: #a7f3d0;
+
+    --warning-bg: #fffbeb;
+    --warning-soft: #fef3c7;
+    --warning-text: #b45309;
+    --warning-border: #fde68a;
+
+    --danger-bg: #fef2f2;
+    --danger-soft: #fee2e2;
+    --danger-text: #b91c1c;
+    --danger-border: #fecaca;
+
+    /* Sombra turquesa */
+    --shadow-color: rgba(8, 145, 178, 0.14);
 }
 
-body {
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-size: var(--base-font-size);
+/* =========================================================
+   MODO OSCURO
+========================================================= */
+
+html[data-mode="dark"] {
+    --page-bg: #080f1e;
+
+    --surface-primary: #111827;
+    --surface-secondary: #172033;
+    --surface-tertiary: #1e293b;
+    --surface-hover: #273449;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-disabled: #64748b;
+
+    --border-primary: #334155;
+    --border-secondary: #273449;
+
+    --accent-soft: #172554;
+    --accent-soft-hover: #1e3a8a;
+    --accent-text: #dbeafe;
+
+    --header-bg: #0b1324;
+    --header-text: #f8fafc;
+    --header-text-secondary: #94a3b8;
+    --header-border: #26354d;
+
+    --success-bg: #052e24;
+    --success-soft: #064e3b;
+    --success-text: #a7f3d0;
+    --success-border: #047857;
+
+    --warning-bg: #2e1a05;
+    --warning-soft: #422006;
+    --warning-text: #fde68a;
+    --warning-border: #b45309;
+
+    --danger-bg: #300808;
+    --danger-soft: #450a0a;
+    --danger-text: #fecaca;
+    --danger-border: #b91c1c;
+
+    --shadow-color: rgba(0, 0, 0, 0.5);
+
+    color-scheme: dark;
 }
 
-[data-mode="dark"] body {
-    background: var(--bg-color);
-    color: var(--text-color);
+/* =========================================================
+   TEMA NIÑOS - MODO CLARO
+========================================================= */
+
+html[data-theme="ninos"] {
+    /* Fondo general muy suave */
+    --page-bg: #fff4fa;
+
+    /* Tarjetas y contenedores */
+    --surface-primary: #fffafd;
+    --surface-secondary: #fff0f7;
+    --surface-tertiary: #ffe3f0;
+    --surface-hover: #ffd5e7;
+
+    /* Textos con mayor intensidad */
+    --text-primary: #4a1532;
+    --text-secondary: #713252;
+    --text-muted: #955978;
+    --text-disabled: #b7839d;
+
+    /* Bordes */
+    --border-primary: #f2b5d0;
+    --border-secondary: #f8cfe1;
+
+    /* Color principal */
+    --accent: #ec4899;
+    --accent-hover: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-soft-hover: #fbcfe8;
+    --accent-text: #9d174d;
+
+    /* Header */
+    --header-bg: #fbcfe8;
+    --header-text: #4a1532;
+    --header-text-secondary: #7a3156;
+    --header-border: #f9a8d4;
+
+    /* Estados */
+    --success-bg: #ecfdf5;
+    --success-soft: #d1fae5;
+    --success-text: #047857;
+    --success-border: #a7f3d0;
+
+    --warning-bg: #fff7ed;
+    --warning-soft: #ffedd5;
+    --warning-text: #c2410c;
+    --warning-border: #fed7aa;
+
+    --danger-bg: #fff1f2;
+    --danger-soft: #ffe4e6;
+    --danger-text: #be123c;
+    --danger-border: #fecdd3;
+
+    /* Sombras rosadas suaves */
+    --shadow-color: rgba(190, 24, 93, 0.14);
 }
 
-[data-mode="dark"] .bg-white {
-    background-color: #0f172a !important;
+/* Tema niños dentro del modo oscuro */
+
+html[data-theme="ninos"][data-mode="dark"] {
+    --page-bg: #180b14;
+
+    --surface-primary: #24101d;
+    --surface-secondary: #301424;
+    --surface-tertiary: #411a31;
+    --surface-hover: #56213f;
+
+    --text-primary: #fff1f7;
+    --text-secondary: #fbcfe8;
+    --text-muted: #f9a8d4;
+    --text-disabled: #d879aa;
+
+    --border-primary: #743052;
+    --border-secondary: #57213f;
+
+    --accent: #f472b6;
+    --accent-hover: #f9a8d4;
+    --accent-soft: #4a1837;
+    --accent-soft-hover: #5f1d46;
+    --accent-text: #fce7f3;
+
+    --header-bg: #2a1020;
+    --header-text: #fff1f7;
+    --header-text-secondary: #f9a8d4;
+    --header-border: #743052;
+
+    --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-[data-mode="dark"] .bg-slate-100,
-[data-mode="dark"] .bg-slate-50 {
-    background-color: #111827 !important;
+/* Tema adultos dentro del modo oscuro */
+
+html[data-theme="adultos"][data-mode="dark"] {
+    --page-bg: #050b16;
+
+    --surface-primary: #0b1628;
+    --surface-secondary: #111f35;
+    --surface-tertiary: #192b48;
+    --surface-hover: #223a60;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #dbeafe;
+    --text-muted: #a9bfdf;
+    --text-disabled: #7089ad;
+
+    --border-primary: #2d4770;
+    --border-secondary: #223957;
+
+    --accent: #60a5fa;
+    --accent-hover: #93c5fd;
+    --accent-soft: #172554;
+    --accent-soft-hover: #1e3a8a;
+    --accent-text: #dbeafe;
+
+    --header-bg: #071120;
+    --header-text: #f8fafc;
+    --header-text-secondary: #a9bfdf;
+    --header-border: #263d62;
+
+    --success-bg: #052e24;
+    --success-soft: #064e3b;
+    --success-text: #a7f3d0;
+    --success-border: #047857;
+
+    --warning-bg: #2e1a05;
+    --warning-soft: #422006;
+    --warning-text: #fde68a;
+    --warning-border: #b45309;
+
+    --danger-bg: #300808;
+    --danger-soft: #450a0a;
+    --danger-text: #fecaca;
+    --danger-border: #b91c1c;
+
+    --shadow-color: rgba(0, 0, 0, 0.55);
 }
 
-[data-mode="dark"] .text-slate-900,
-[data-mode="dark"] .text-slate-800 {
-    color: #f8fafc !important;
+/* Tema jóvenes dentro del modo oscuro */
+
+html[data-theme="jovenes"][data-mode="dark"] {
+    --page-bg: #04191f;
+
+    --surface-primary: #08262f;
+    --surface-secondary: #0b3440;
+    --surface-tertiary: #104653;
+    --surface-hover: #155e70;
+
+    --text-primary: #ecfeff;
+    --text-secondary: #cffafe;
+    --text-muted: #a5f3fc;
+    --text-disabled: #67e8f9;
+
+    --border-primary: #155e75;
+    --border-secondary: #164e63;
+
+    --accent: #22d3ee;
+    --accent-hover: #67e8f9;
+    --accent-soft: #083344;
+    --accent-soft-hover: #164e63;
+    --accent-text: #cffafe;
+
+    --header-bg: #062832;
+    --header-text: #ecfeff;
+    --header-text-secondary: #a5f3fc;
+    --header-border: #155e75;
+
+    --success-bg: #052e24;
+    --success-soft: #064e3b;
+    --success-text: #a7f3d0;
+    --success-border: #047857;
+
+    --warning-bg: #2e1a05;
+    --warning-soft: #422006;
+    --warning-text: #fde68a;
+    --warning-border: #b45309;
+
+    --danger-bg: #300808;
+    --danger-soft: #450a0a;
+    --danger-text: #fecaca;
+    --danger-border: #b91c1c;
+
+    --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-[data-mode="dark"] .text-slate-500,
-[data-mode="dark"] .text-slate-400 {
-    color: #cbd5e1 !important;
+/* =========================================================
+   ALTO CONTRASTE CLARO
+========================================================= */
+
+html[data-mode="light"][data-contrast="high"] {
+    --page-bg: #ffffff;
+
+    --surface-primary: #ffffff;
+    --surface-secondary: #ffffff;
+    --surface-tertiary: #f3f4f6;
+    --surface-hover: #e5e7eb;
+
+    --text-primary: #000000;
+    --text-secondary: #111827;
+    --text-muted: #1f2937;
+    --text-disabled: #374151;
+
+    --border-primary: #111827;
+    --border-secondary: #374151;
+
+    --header-bg: #ffffff;
+    --header-text: #000000;
+    --header-text-secondary: #111827;
+    --header-border: #000000;
+
+    --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-[data-mode="dark"] .border-slate-200,
-[data-mode="dark"] .border-slate-100 {
-    border-color: #334155 !important;
+/* =========================================================
+   ALTO CONTRASTE OSCURO
+========================================================= */
+
+html[data-mode="dark"][data-contrast="high"] {
+    --page-bg: #000000;
+
+    --surface-primary: #050505;
+    --surface-secondary: #0a0a0a;
+    --surface-tertiary: #111111;
+    --surface-hover: #1f1f1f;
+
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --text-muted: #e5e7eb;
+    --text-disabled: #d1d5db;
+
+    --border-primary: #ffffff;
+    --border-secondary: #d1d5db;
+
+    --header-bg: #000000;
+    --header-text: #ffffff;
+    --header-text-secondary: #ffffff;
+    --header-border: #ffffff;
+
+    --accent: #60a5fa;
+    --accent-hover: #93c5fd;
+    --accent-soft: #172554;
+    --accent-soft-hover: #1e3a8a;
+    --accent-text: #ffffff;
+
+    --shadow-color: rgba(255, 255, 255, 0.12);
 }
+
+/*
+ * La clase se mantiene por compatibilidad,
+ * pero ya no utiliza filter porque filter causa problemas
+ * con modales y elementos fixed.
+ */
 
 .high-contrast {
-    filter: contrast(1.3) saturate(1.1);
+    isolation: isolate;
+}
+
+/* =========================================================
+   FONDO GENERAL DE LAS PÁGINAS
+========================================================= */
+
+body,
+#app,
+[data-page] {
+    background-color: var(--page-bg) !important;
+    color: var(--text-primary);
+}
+
+#app {
+    min-height: 100vh;
+}
+
+#app > div,
+[data-page] > div,
+main,
+.min-h-screen {
+    background-color: var(--page-bg) !important;
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   SUPERFICIES Y FONDOS TAILWIND
+========================================================= */
+
+.bg-white {
+    background-color: var(--surface-primary) !important;
+}
+
+.bg-slate-50,
+.bg-gray-50,
+.bg-neutral-50,
+.bg-zinc-50 {
+    background-color: var(--surface-secondary) !important;
+}
+
+.bg-slate-100,
+.bg-gray-100,
+.bg-neutral-100,
+.bg-zinc-100 {
+    background-color: var(--surface-tertiary) !important;
+}
+
+.bg-slate-200,
+.bg-gray-200,
+.bg-neutral-200,
+.bg-zinc-200 {
+    background-color: var(--border-primary) !important;
+}
+
+/* Transparencias */
+
+html[data-mode="dark"] [class*="bg-white/"] {
+    background-color: rgba(17, 24, 39, 0.95) !important;
+}
+
+html[data-mode="dark"] [class*="bg-slate-50/"],
+html[data-mode="dark"] [class*="bg-gray-50/"] {
+    background-color: rgba(23, 32, 51, 0.94) !important;
+}
+
+html[data-mode="dark"] [class*="bg-slate-100/"],
+html[data-mode="dark"] [class*="bg-gray-100/"] {
+    background-color: rgba(30, 41, 59, 0.94) !important;
+}
+
+/* Fondos hexadecimales frecuentes */
+
+html[data-mode="dark"] [class*="bg-[#ffffff]"],
+html[data-mode="dark"] [class*="bg-[#FFFFFF]"],
+html[data-mode="dark"] [class*="bg-[#fff]"],
+html[data-mode="dark"] [class*="bg-[#FFF]"] {
+    background-color: var(--surface-primary) !important;
+}
+
+html[data-mode="dark"] [class*="bg-[#f8fafc]"],
+html[data-mode="dark"] [class*="bg-[#F8FAFC]"],
+html[data-mode="dark"] [class*="bg-[#f9fafb]"],
+html[data-mode="dark"] [class*="bg-[#F9FAFB]"],
+html[data-mode="dark"] [class*="bg-[#f7f9fc]"] {
+    background-color: var(--surface-secondary) !important;
+}
+
+html[data-mode="dark"] [class*="bg-[#f1f5f9]"],
+html[data-mode="dark"] [class*="bg-[#F1F5F9]"],
+html[data-mode="dark"] [class*="bg-[#eef2ff]"],
+html[data-mode="dark"] [class*="bg-[#EEF2FF]"],
+html[data-mode="dark"] [class*="bg-[#f5f7fb]"] {
+    background-color: var(--page-bg) !important;
+}
+
+/* =========================================================
+   TEXTOS
+========================================================= */
+
+.text-black,
+.text-slate-950,
+.text-slate-900,
+.text-slate-800,
+.text-gray-950,
+.text-gray-900,
+.text-gray-800,
+.text-neutral-950,
+.text-neutral-900,
+.text-neutral-800,
+.text-zinc-950,
+.text-zinc-900,
+.text-zinc-800 {
+    color: var(--text-primary) !important;
+}
+
+.text-slate-700,
+.text-slate-600,
+.text-gray-700,
+.text-gray-600,
+.text-neutral-700,
+.text-neutral-600,
+.text-zinc-700,
+.text-zinc-600 {
+    color: var(--text-secondary) !important;
+}
+
+.text-slate-500,
+.text-slate-400,
+.text-gray-500,
+.text-gray-400,
+.text-neutral-500,
+.text-neutral-400,
+.text-zinc-500,
+.text-zinc-400 {
+    color: var(--text-muted) !important;
+}
+
+.text-slate-300,
+.text-gray-300,
+.text-neutral-300,
+.text-zinc-300 {
+    color: var(--text-disabled) !important;
+}
+
+/* Textos hexadecimales frecuentes */
+
+html[data-mode="dark"] [class*="text-[#0f172a]"],
+html[data-mode="dark"] [class*="text-[#0F172A]"],
+html[data-mode="dark"] [class*="text-[#111827]"],
+html[data-mode="dark"] [class*="text-[#1e293b]"],
+html[data-mode="dark"] [class*="text-[#020617]"] {
+    color: var(--text-primary) !important;
+}
+
+html[data-mode="dark"] [class*="text-[#334155]"],
+html[data-mode="dark"] [class*="text-[#475569]"] {
+    color: var(--text-secondary) !important;
+}
+
+html[data-mode="dark"] [class*="text-[#64748b]"],
+html[data-mode="dark"] [class*="text-[#64748B]"],
+html[data-mode="dark"] [class*="text-[#94a3b8]"] {
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   BORDES
+========================================================= */
+
+.border-white,
+.border-slate-100,
+.border-slate-200,
+.border-slate-300,
+.border-gray-100,
+.border-gray-200,
+.border-gray-300,
+.border-neutral-100,
+.border-neutral-200,
+.border-neutral-300,
+.border-zinc-100,
+.border-zinc-200,
+.border-zinc-300 {
+    border-color: var(--border-primary) !important;
+}
+
+html[data-mode="dark"] [class*="border-[#e2e8f0]"],
+html[data-mode="dark"] [class*="border-[#E2E8F0]"],
+html[data-mode="dark"] [class*="border-[#cbd5e1]"],
+html[data-mode="dark"] [class*="border-[#CBD5E1]"] {
+    border-color: var(--border-primary) !important;
+}
+
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-primary) !important;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+html header,
+html header.sticky,
+html .site-header,
+html .topbar,
+html .navbar {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--header-border) !important;
+}
+
+html header .text-slate-950,
+html header .text-slate-900,
+html header .text-slate-800,
+html header .font-black,
+html header .font-bold,
+html header h1,
+html header h2,
+html header h3,
+html header strong {
+    color: var(--header-text) !important;
+}
+
+html header .text-slate-700,
+html header .text-slate-600,
+html header .text-slate-500,
+html header .text-slate-400,
+html header p,
+html header span,
+html header a,
+html header button {
+    color: var(--header-text-secondary) !important;
+}
+
+html header a:hover,
+html header button:hover {
+    color: var(--header-text) !important;
+}
+
+html header svg {
+    color: inherit;
+    stroke: currentColor;
+}
+
+html header img {
+    filter: none !important;
+}
+
+/* =========================================================
+   COLOR DE ACENTO
+========================================================= */
+
+.text-blue-500,
+.text-blue-600,
+.text-blue-700 {
+    color: var(--accent) !important;
+}
+
+.bg-blue-50,
+.bg-blue-100 {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+}
+
+.bg-blue-500,
+.bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.border-blue-400,
+.border-blue-500,
+.border-blue-600 {
+    border-color: var(--accent) !important;
+}
+
+.ring-blue-400,
+.ring-blue-500,
+.ring-blue-600 {
+    --tw-ring-color: var(--accent) !important;
+}
+
+.hover\:bg-blue-600:hover,
+.hover\:bg-blue-700:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+.hover\:text-blue-600:hover,
+.hover\:text-blue-700:hover {
+    color: var(--accent-hover) !important;
+}
+
+.accent-text {
+    color: var(--accent) !important;
+}
+
+.accent-bg {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.accent-soft-bg {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+}
+
+.accent-border {
+    border-color: var(--accent) !important;
+}
+
+/* =========================================================
+   OPCIONES VISUALES
+========================================================= */
+
+.visual-option,
+.theme-option {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+.visual-option:hover,
+.theme-option:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+.visual-option--selected,
+.theme-option-selected {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+    border-color: var(--accent) !important;
+}
+
+.visual-option--selected p,
+.visual-option--selected span,
+.visual-option--selected strong,
+.theme-option-selected p,
+.theme-option-selected span,
+.theme-option-selected strong {
+    color: inherit !important;
+}
+
+.visual-option__icon,
+.theme-icon {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+.visual-option--selected .visual-option__icon,
+.theme-option-selected .theme-icon {
+    background-color: var(--accent-soft-hover) !important;
+    color: var(--accent) !important;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+button,
+a {
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+button:disabled,
+a[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button.bg-white,
+a.bg-white,
+button.bg-slate-50,
+a.bg-slate-50,
+button.bg-slate-100,
+a.bg-slate-100 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+button.bg-white:hover,
+a.bg-white:hover,
+button.bg-slate-100:hover,
+a.bg-slate-100:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+button.bg-blue-600,
+a.bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+button.bg-blue-600:hover,
+a.bg-blue-600:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+input,
+textarea,
+select {
+    background-color: var(--surface-primary);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+}
+
+html[data-mode="dark"] input,
+html[data-mode="dark"] textarea,
+html[data-mode="dark"] select {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent) !important;
+    outline-color: var(--accent) !important;
+    --tw-ring-color: var(--accent) !important;
+}
+
+input[type="range"] {
+    accent-color: var(--accent);
+}
+
+html[data-mode="dark"] input:-webkit-autofill,
+html[data-mode="dark"] input:-webkit-autofill:hover,
+html[data-mode="dark"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--surface-secondary) inset !important;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.bg-emerald-50,
+.bg-green-50 {
+    background-color: var(--success-bg) !important;
+}
+
+.bg-emerald-100,
+.bg-green-100 {
+    background-color: var(--success-soft) !important;
+}
+
+.border-emerald-200,
+.border-green-200 {
+    border-color: var(--success-border) !important;
+}
+
+.text-emerald-700,
+.text-emerald-800,
+.text-emerald-900,
+.text-green-700,
+.text-green-800,
+.text-green-900 {
+    color: var(--success-text) !important;
+}
+
+.bg-amber-50,
+.bg-yellow-50 {
+    background-color: var(--warning-bg) !important;
+}
+
+.bg-amber-100,
+.bg-yellow-100 {
+    background-color: var(--warning-soft) !important;
+}
+
+.text-amber-700,
+.text-amber-800,
+.text-yellow-700,
+.text-yellow-800 {
+    color: var(--warning-text) !important;
+}
+
+.bg-red-50,
+.bg-rose-50 {
+    background-color: var(--danger-bg) !important;
+}
+
+.bg-red-100,
+.bg-rose-100 {
+    background-color: var(--danger-soft) !important;
+}
+
+.border-red-200,
+.border-rose-200 {
+    border-color: var(--danger-border) !important;
+}
+
+.text-red-700,
+.text-red-800,
+.text-red-900,
+.text-rose-700,
+.text-rose-800,
+.text-rose-900 {
+    color: var(--danger-text) !important;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+html[data-mode="dark"] table {
+    color: var(--text-primary);
+}
+
+html[data-mode="dark"] thead,
+html[data-mode="dark"] thead tr,
+html[data-mode="dark"] thead th {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-mode="dark"] tbody,
+html[data-mode="dark"] tbody tr,
+html[data-mode="dark"] tbody td {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-mode="dark"] tbody tr:hover td {
+    background-color: var(--surface-secondary) !important;
+}
+
+/* =========================================================
+   MODALES Y MENÚS
+========================================================= */
+
+html[data-mode="dark"] [role="dialog"],
+html[data-mode="dark"] [role="menu"],
+html[data-mode="dark"] .modal-content,
+html[data-mode="dark"] .dropdown-menu {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-mode="dark"] [role="menuitem"]:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* =========================================================
+   ICONOS
+========================================================= */
+
+svg {
+    color: inherit;
+}
+
+svg[fill="none"] {
+    fill: none;
+    stroke: currentColor;
+}
+
+.fa,
+.fas,
+.far,
+.fal,
+.fab,
+.fa-solid,
+.fa-regular,
+.fa-brands {
+    color: inherit;
+}
+
+/* =========================================================
+   SOMBRAS
+========================================================= */
+
+.shadow,
+.shadow-sm,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+    --tw-shadow-color: var(--shadow-color);
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+html[data-mode="dark"] {
+    scrollbar-color: #475569 var(--page-bg);
+}
+
+html[data-mode="dark"] ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+html[data-mode="dark"] ::-webkit-scrollbar-track {
+    background-color: var(--page-bg);
+}
+
+html[data-mode="dark"] ::-webkit-scrollbar-thumb {
+    background-color: #475569;
+    border: 2px solid var(--page-bg);
+    border-radius: 9999px;
+}
+
+html[data-mode="dark"] ::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b;
+}
+
+/* =========================================================
+   APLICACIÓN GLOBAL DEL TEMA NIÑOS
+========================================================= */
+
+/* Fondo completo */
+
+html[data-theme="ninos"],
+html[data-theme="ninos"] body,
+html[data-theme="ninos"] #app,
+html[data-theme="ninos"] [data-page],
+html[data-theme="ninos"] main,
+html[data-theme="ninos"] .min-h-screen {
+    background-color: var(--page-bg) !important;
+    color: var(--text-primary);
+}
+
+/* Header */
+
+html[data-theme="ninos"] header,
+html[data-theme="ninos"] header.sticky,
+html[data-theme="ninos"] .site-header,
+html[data-theme="ninos"] .navbar,
+html[data-theme="ninos"] .topbar {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--header-border) !important;
+    box-shadow: 0 1px 0 var(--header-border);
+}
+
+html[data-theme="ninos"] header h1,
+html[data-theme="ninos"] header h2,
+html[data-theme="ninos"] header h3,
+html[data-theme="ninos"] header strong,
+html[data-theme="ninos"] header .font-bold,
+html[data-theme="ninos"] header .font-black {
+    color: var(--header-text) !important;
+}
+
+html[data-theme="ninos"] header p,
+html[data-theme="ninos"] header span,
+html[data-theme="ninos"] header a,
+html[data-theme="ninos"] header button {
+    color: var(--header-text-secondary) !important;
+}
+
+html[data-theme="ninos"] header a:hover,
+html[data-theme="ninos"] header button:hover {
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="ninos"] header svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+}
+
+/* Tarjetas principales */
+
+html[data-theme="ninos"] .bg-white {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="ninos"] .bg-slate-50,
+html[data-theme="ninos"] .bg-gray-50 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="ninos"] .bg-slate-100,
+html[data-theme="ninos"] .bg-gray-100 {
+    background-color: var(--surface-tertiary) !important;
+}
+
+/* Componentes personalizados */
+
+html[data-theme="ninos"] .card,
+html[data-theme="ninos"] .panel,
+html[data-theme="ninos"] .surface-card,
+html[data-theme="ninos"] .profile-card,
+html[data-theme="ninos"] .settings-card,
+html[data-theme="ninos"] .content-card,
+html[data-theme="ninos"] .info-card {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* Bordes */
+
+html[data-theme="ninos"] .border-slate-100,
+html[data-theme="ninos"] .border-slate-200,
+html[data-theme="ninos"] .border-slate-300,
+html[data-theme="ninos"] .border-gray-100,
+html[data-theme="ninos"] .border-gray-200,
+html[data-theme="ninos"] .border-gray-300 {
+    border-color: var(--border-primary) !important;
+}
+
+/* Textos */
+
+html[data-theme="ninos"] .text-slate-950,
+html[data-theme="ninos"] .text-slate-900,
+html[data-theme="ninos"] .text-slate-800,
+html[data-theme="ninos"] .text-gray-950,
+html[data-theme="ninos"] .text-gray-900,
+html[data-theme="ninos"] .text-gray-800 {
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="ninos"] .text-slate-700,
+html[data-theme="ninos"] .text-slate-600,
+html[data-theme="ninos"] .text-gray-700,
+html[data-theme="ninos"] .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="ninos"] .text-slate-500,
+html[data-theme="ninos"] .text-slate-400,
+html[data-theme="ninos"] .text-gray-500,
+html[data-theme="ninos"] .text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+/* Color azul convertido en rosa */
+
+html[data-theme="ninos"] .text-blue-500,
+html[data-theme="ninos"] .text-blue-600,
+html[data-theme="ninos"] .text-blue-700 {
+    color: var(--accent) !important;
+}
+
+html[data-theme="ninos"] .bg-blue-50,
+html[data-theme="ninos"] .bg-blue-100 {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="ninos"] .bg-blue-500,
+html[data-theme="ninos"] .bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="ninos"] .hover\:bg-blue-700:hover,
+html[data-theme="ninos"] .hover\:bg-blue-600:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+html[data-theme="ninos"] .border-blue-400,
+html[data-theme="ninos"] .border-blue-500,
+html[data-theme="ninos"] .border-blue-600 {
+    border-color: var(--accent) !important;
+}
+
+/* Botones principales */
+
+html[data-theme="ninos"] button.bg-blue-600,
+html[data-theme="ninos"] a.bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 8px 18px rgba(236, 72, 153, 0.22);
+}
+
+html[data-theme="ninos"] button.bg-blue-600:hover,
+html[data-theme="ninos"] a.bg-blue-600:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+/* Botones secundarios */
+
+html[data-theme="ninos"] button.bg-white,
+html[data-theme="ninos"] a.bg-white,
+html[data-theme="ninos"] button.bg-slate-50,
+html[data-theme="ninos"] a.bg-slate-50,
+html[data-theme="ninos"] button.bg-slate-100,
+html[data-theme="ninos"] a.bg-slate-100 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] button.bg-white:hover,
+html[data-theme="ninos"] a.bg-white:hover,
+html[data-theme="ninos"] button.bg-slate-50:hover,
+html[data-theme="ninos"] a.bg-slate-50:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+/* Opciones seleccionables */
+
+html[data-theme="ninos"] .visual-option,
+html[data-theme="ninos"] .theme-option {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] .visual-option:hover,
+html[data-theme="ninos"] .theme-option:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+html[data-theme="ninos"] .visual-option--selected,
+html[data-theme="ninos"] .theme-option-selected {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.14);
+}
+
+html[data-theme="ninos"] .visual-option--selected .visual-option__icon,
+html[data-theme="ninos"] .theme-option-selected .theme-icon {
+    background-color: var(--accent-soft-hover) !important;
+    color: var(--accent) !important;
+}
+
+/* Formularios */
+
+html[data-theme="ninos"] input:not([type="range"]),
+html[data-theme="ninos"] textarea,
+html[data-theme="ninos"] select {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] input::placeholder,
+html[data-theme="ninos"] textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="ninos"] input:focus,
+html[data-theme="ninos"] textarea:focus,
+html[data-theme="ninos"] select:focus {
+    border-color: var(--accent) !important;
+    outline-color: var(--accent) !important;
+    --tw-ring-color: var(--accent) !important;
+}
+
+html[data-theme="ninos"] input[type="range"],
+html[data-theme="ninos"] input[type="checkbox"],
+html[data-theme="ninos"] input[type="radio"] {
+    accent-color: var(--accent) !important;
+}
+
+/* Modales y menús */
+
+html[data-theme="ninos"] [role="dialog"],
+html[data-theme="ninos"] [role="menu"],
+html[data-theme="ninos"] .modal-content,
+html[data-theme="ninos"] .dropdown-menu {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] [role="menuitem"]:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* Tablas */
+
+html[data-theme="ninos"] table {
+    color: var(--text-primary);
+}
+
+html[data-theme="ninos"] thead,
+html[data-theme="ninos"] thead tr,
+html[data-theme="ninos"] thead th {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] tbody,
+html[data-theme="ninos"] tbody tr,
+html[data-theme="ninos"] tbody td {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="ninos"] tbody tr:hover td {
+    background-color: var(--surface-secondary) !important;
+}
+
+/* Sombras */
+
+html[data-theme="ninos"] .shadow,
+html[data-theme="ninos"] .shadow-sm,
+html[data-theme="ninos"] .shadow-md,
+html[data-theme="ninos"] .shadow-lg,
+html[data-theme="ninos"] .shadow-xl {
+    --tw-shadow-color: var(--shadow-color);
+}
+
+/* =========================================================
+   DECORACIÓN DE SETTINGS PARA EL TEMA NIÑOS
+========================================================= */
+
+html[data-theme="ninos"] .settings-page .bg-indigo-50,
+html[data-theme="ninos"] .settings-page .bg-indigo-100,
+html[data-theme="ninos"] .settings-page .bg-amber-50,
+html[data-theme="ninos"] .settings-page .bg-amber-100 {
+    background-color: var(--accent-soft) !important;
+}
+
+html[data-theme="ninos"] .settings-page .text-indigo-600,
+html[data-theme="ninos"] .settings-page .text-indigo-700,
+html[data-theme="ninos"] .settings-page .text-amber-600,
+html[data-theme="ninos"] .settings-page .text-amber-700 {
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="ninos"] .settings-page .fa-palette,
+html[data-theme="ninos"] .settings-page .fa-text-height,
+html[data-theme="ninos"] .settings-page .fa-font,
+html[data-theme="ninos"] .settings-page .fa-circle-half-stroke,
+html[data-theme="ninos"] .settings-page .fa-eye-low-vision {
+    color: var(--accent) !important;
+}
+
+/* =========================================================
+   APLICACIÓN GLOBAL DEL TEMA JÓVENES
+========================================================= */
+
+/* Fondo completo de la aplicación */
+
+html[data-theme="jovenes"],
+html[data-theme="jovenes"] body,
+html[data-theme="jovenes"] #app,
+html[data-theme="jovenes"] [data-page],
+html[data-theme="jovenes"] main,
+html[data-theme="jovenes"] .min-h-screen,
+html[data-theme="jovenes"] .page-container,
+html[data-theme="jovenes"] .page-wrapper,
+html[data-theme="jovenes"] .content-wrapper {
+    background-color: var(--page-bg) !important;
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+html[data-theme="jovenes"] header,
+html[data-theme="jovenes"] header.sticky,
+html[data-theme="jovenes"] .site-header,
+html[data-theme="jovenes"] .navbar,
+html[data-theme="jovenes"] .topbar {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--header-border) !important;
+
+    box-shadow:
+        0 1px 0 var(--header-border),
+        0 6px 18px rgba(8, 145, 178, 0.08);
+}
+
+html[data-theme="jovenes"] header h1,
+html[data-theme="jovenes"] header h2,
+html[data-theme="jovenes"] header h3,
+html[data-theme="jovenes"] header h4,
+html[data-theme="jovenes"] header strong,
+html[data-theme="jovenes"] header .font-bold,
+html[data-theme="jovenes"] header .font-black {
+    color: var(--header-text) !important;
+}
+
+html[data-theme="jovenes"] header p,
+html[data-theme="jovenes"] header span,
+html[data-theme="jovenes"] header a,
+html[data-theme="jovenes"] header button,
+html[data-theme="jovenes"] header label {
+    color: var(--header-text-secondary) !important;
+}
+
+html[data-theme="jovenes"] header a:hover,
+html[data-theme="jovenes"] header button:hover {
+    color: var(--accent-hover) !important;
+}
+
+html[data-theme="jovenes"] header svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+}
+
+html[data-theme="jovenes"] header img {
+    filter: none !important;
+}
+
+/* =========================================================
+   FONDOS Y TARJETAS
+========================================================= */
+
+html[data-theme="jovenes"] .bg-white {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="jovenes"] .bg-slate-50,
+html[data-theme="jovenes"] .bg-gray-50,
+html[data-theme="jovenes"] .bg-neutral-50,
+html[data-theme="jovenes"] .bg-zinc-50 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="jovenes"] .bg-slate-100,
+html[data-theme="jovenes"] .bg-gray-100,
+html[data-theme="jovenes"] .bg-neutral-100,
+html[data-theme="jovenes"] .bg-zinc-100 {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="jovenes"] .bg-slate-200,
+html[data-theme="jovenes"] .bg-gray-200 {
+    background-color: var(--border-primary) !important;
+}
+
+/* Tarjetas con clases personalizadas */
+
+html[data-theme="jovenes"] .card,
+html[data-theme="jovenes"] .panel,
+html[data-theme="jovenes"] .surface-card,
+html[data-theme="jovenes"] .profile-card,
+html[data-theme="jovenes"] .settings-card,
+html[data-theme="jovenes"] .content-card,
+html[data-theme="jovenes"] .info-card,
+html[data-theme="jovenes"] .details-panel,
+html[data-theme="jovenes"] .profile-panel {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* =========================================================
+   BORDES
+========================================================= */
+
+html[data-theme="jovenes"] .border-white,
+html[data-theme="jovenes"] .border-slate-100,
+html[data-theme="jovenes"] .border-slate-200,
+html[data-theme="jovenes"] .border-slate-300,
+html[data-theme="jovenes"] .border-gray-100,
+html[data-theme="jovenes"] .border-gray-200,
+html[data-theme="jovenes"] .border-gray-300,
+html[data-theme="jovenes"] .border-neutral-100,
+html[data-theme="jovenes"] .border-neutral-200,
+html[data-theme="jovenes"] .border-neutral-300 {
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="jovenes"] .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="jovenes"] .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="jovenes"] .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-primary) !important;
+}
+
+/* =========================================================
+   TEXTOS
+========================================================= */
+
+html[data-theme="jovenes"] .text-black,
+html[data-theme="jovenes"] .text-slate-950,
+html[data-theme="jovenes"] .text-slate-900,
+html[data-theme="jovenes"] .text-slate-800,
+html[data-theme="jovenes"] .text-gray-950,
+html[data-theme="jovenes"] .text-gray-900,
+html[data-theme="jovenes"] .text-gray-800,
+html[data-theme="jovenes"] .text-neutral-950,
+html[data-theme="jovenes"] .text-neutral-900 {
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="jovenes"] .text-slate-700,
+html[data-theme="jovenes"] .text-slate-600,
+html[data-theme="jovenes"] .text-gray-700,
+html[data-theme="jovenes"] .text-gray-600,
+html[data-theme="jovenes"] .text-neutral-700,
+html[data-theme="jovenes"] .text-neutral-600 {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="jovenes"] .text-slate-500,
+html[data-theme="jovenes"] .text-slate-400,
+html[data-theme="jovenes"] .text-gray-500,
+html[data-theme="jovenes"] .text-gray-400,
+html[data-theme="jovenes"] .text-neutral-500,
+html[data-theme="jovenes"] .text-neutral-400 {
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   CLASES AZULES CONVERTIDAS AL COLOR TURQUESA
+========================================================= */
+
+html[data-theme="jovenes"] .text-blue-400,
+html[data-theme="jovenes"] .text-blue-500,
+html[data-theme="jovenes"] .text-blue-600,
+html[data-theme="jovenes"] .text-blue-700 {
+    color: var(--accent) !important;
+}
+
+html[data-theme="jovenes"] .bg-blue-50,
+html[data-theme="jovenes"] .bg-blue-100 {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="jovenes"] .bg-blue-500,
+html[data-theme="jovenes"] .bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="jovenes"] .border-blue-400,
+html[data-theme="jovenes"] .border-blue-500,
+html[data-theme="jovenes"] .border-blue-600 {
+    border-color: var(--accent) !important;
+}
+
+html[data-theme="jovenes"] .ring-blue-400,
+html[data-theme="jovenes"] .ring-blue-500,
+html[data-theme="jovenes"] .ring-blue-600 {
+    --tw-ring-color: var(--accent) !important;
+}
+
+html[data-theme="jovenes"] .hover\:bg-blue-600:hover,
+html[data-theme="jovenes"] .hover\:bg-blue-700:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+html[data-theme="jovenes"] .hover\:text-blue-600:hover,
+html[data-theme="jovenes"] .hover\:text-blue-700:hover {
+    color: var(--accent-hover) !important;
+}
+
+/* =========================================================
+   BOTONES PRINCIPALES
+========================================================= */
+
+html[data-theme="jovenes"] button.bg-blue-600,
+html[data-theme="jovenes"] a.bg-blue-600,
+html[data-theme="jovenes"] .accent-bg {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.22);
+}
+
+html[data-theme="jovenes"] button.bg-blue-600:hover,
+html[data-theme="jovenes"] a.bg-blue-600:hover,
+html[data-theme="jovenes"] .accent-bg:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+/* =========================================================
+   BOTONES SECUNDARIOS
+========================================================= */
+
+html[data-theme="jovenes"] button.bg-white,
+html[data-theme="jovenes"] a.bg-white,
+html[data-theme="jovenes"] button.bg-slate-50,
+html[data-theme="jovenes"] a.bg-slate-50,
+html[data-theme="jovenes"] button.bg-slate-100,
+html[data-theme="jovenes"] a.bg-slate-100,
+html[data-theme="jovenes"] button.bg-gray-50,
+html[data-theme="jovenes"] a.bg-gray-50,
+html[data-theme="jovenes"] button.bg-gray-100,
+html[data-theme="jovenes"] a.bg-gray-100 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] button.bg-white:hover,
+html[data-theme="jovenes"] a.bg-white:hover,
+html[data-theme="jovenes"] button.bg-slate-50:hover,
+html[data-theme="jovenes"] a.bg-slate-50:hover,
+html[data-theme="jovenes"] button.bg-slate-100:hover,
+html[data-theme="jovenes"] a.bg-slate-100:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+/* =========================================================
+   OPCIONES SELECCIONABLES
+========================================================= */
+
+html[data-theme="jovenes"] .visual-option,
+html[data-theme="jovenes"] .theme-option {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] .visual-option:hover,
+html[data-theme="jovenes"] .theme-option:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+html[data-theme="jovenes"] .visual-option--selected,
+html[data-theme="jovenes"] .theme-option-selected {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+    border-color: var(--accent) !important;
+
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.16);
+}
+
+html[data-theme="jovenes"] .visual-option--selected p,
+html[data-theme="jovenes"] .visual-option--selected span,
+html[data-theme="jovenes"] .visual-option--selected strong,
+html[data-theme="jovenes"] .theme-option-selected p,
+html[data-theme="jovenes"] .theme-option-selected span,
+html[data-theme="jovenes"] .theme-option-selected strong {
+    color: inherit !important;
+}
+
+html[data-theme="jovenes"] .visual-option--selected .visual-option__icon,
+html[data-theme="jovenes"] .theme-option-selected .theme-icon {
+    background-color: var(--accent-soft-hover) !important;
+    color: var(--accent) !important;
+}
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+html[data-theme="jovenes"] input:not([type="range"]),
+html[data-theme="jovenes"] textarea,
+html[data-theme="jovenes"] select {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] input::placeholder,
+html[data-theme="jovenes"] textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="jovenes"] input:focus,
+html[data-theme="jovenes"] textarea:focus,
+html[data-theme="jovenes"] select:focus {
+    border-color: var(--accent) !important;
+    outline-color: var(--accent) !important;
+    --tw-ring-color: var(--accent) !important;
+}
+
+html[data-theme="jovenes"] input[type="range"],
+html[data-theme="jovenes"] input[type="checkbox"],
+html[data-theme="jovenes"] input[type="radio"] {
+    accent-color: var(--accent) !important;
+}
+
+/* Autocompletado */
+
+html[data-theme="jovenes"] input:-webkit-autofill,
+html[data-theme="jovenes"] input:-webkit-autofill:hover,
+html[data-theme="jovenes"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary) !important;
+
+    -webkit-box-shadow: 0 0 0 1000px var(--surface-primary) inset !important;
+}
+
+/* =========================================================
+   MODALES Y MENÚS
+========================================================= */
+
+html[data-theme="jovenes"] [role="dialog"],
+html[data-theme="jovenes"] [role="menu"],
+html[data-theme="jovenes"] .modal-content,
+html[data-theme="jovenes"] .dropdown-menu {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] [role="menuitem"]:hover,
+html[data-theme="jovenes"] .dropdown-menu a:hover,
+html[data-theme="jovenes"] .dropdown-menu button:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+html[data-theme="jovenes"] table {
+    color: var(--text-primary);
+}
+
+html[data-theme="jovenes"] thead,
+html[data-theme="jovenes"] thead tr,
+html[data-theme="jovenes"] thead th {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] tbody,
+html[data-theme="jovenes"] tbody tr,
+html[data-theme="jovenes"] tbody td {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="jovenes"] tbody tr:hover td {
+    background-color: var(--surface-secondary) !important;
+}
+
+/* =========================================================
+   SOMBRAS
+========================================================= */
+
+html[data-theme="jovenes"] .shadow,
+html[data-theme="jovenes"] .shadow-sm,
+html[data-theme="jovenes"] .shadow-md,
+html[data-theme="jovenes"] .shadow-lg,
+html[data-theme="jovenes"] .shadow-xl,
+html[data-theme="jovenes"] .shadow-2xl {
+    --tw-shadow-color: var(--shadow-color);
+}
+
+/* =========================================================
+   DECORACIÓN DE SETTINGS PARA EL TEMA JÓVENES
+========================================================= */
+
+html[data-theme="jovenes"] .settings-page .bg-indigo-50,
+html[data-theme="jovenes"] .settings-page .bg-indigo-100,
+html[data-theme="jovenes"] .settings-page .bg-amber-50,
+html[data-theme="jovenes"] .settings-page .bg-amber-100 {
+    background-color: var(--accent-soft) !important;
+}
+
+html[data-theme="jovenes"] .settings-page .text-indigo-600,
+html[data-theme="jovenes"] .settings-page .text-indigo-700,
+html[data-theme="jovenes"] .settings-page .text-amber-600,
+html[data-theme="jovenes"] .settings-page .text-amber-700 {
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="jovenes"] .settings-page .fa-palette,
+html[data-theme="jovenes"] .settings-page .fa-text-height,
+html[data-theme="jovenes"] .settings-page .fa-font,
+html[data-theme="jovenes"] .settings-page .fa-circle-half-stroke,
+html[data-theme="jovenes"] .settings-page .fa-eye-low-vision,
+html[data-theme="jovenes"] .settings-page .fa-lock {
+    color: var(--accent) !important;
+}
+
+/* =========================================================
+   APLICACIÓN GLOBAL DEL TEMA ADULTOS
+========================================================= */
+
+/* Fondo general */
+
+html[data-theme="adultos"],
+html[data-theme="adultos"] body,
+html[data-theme="adultos"] #app,
+html[data-theme="adultos"] [data-page],
+html[data-theme="adultos"] main,
+html[data-theme="adultos"] .min-h-screen,
+html[data-theme="adultos"] .page-container,
+html[data-theme="adultos"] .page-wrapper,
+html[data-theme="adultos"] .content-wrapper,
+html[data-theme="adultos"] .main-content {
+    background-color: var(--page-bg) !important;
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+html[data-theme="adultos"] header,
+html[data-theme="adultos"] header.sticky,
+html[data-theme="adultos"] .site-header,
+html[data-theme="adultos"] .navbar,
+html[data-theme="adultos"] .topbar {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--header-border) !important;
+
+    box-shadow:
+        0 1px 0 var(--header-border),
+        0 8px 22px rgba(11, 31, 68, 0.14);
+}
+
+html[data-theme="adultos"] header h1,
+html[data-theme="adultos"] header h2,
+html[data-theme="adultos"] header h3,
+html[data-theme="adultos"] header h4,
+html[data-theme="adultos"] header strong,
+html[data-theme="adultos"] header .font-bold,
+html[data-theme="adultos"] header .font-black {
+    color: var(--header-text) !important;
+}
+
+html[data-theme="adultos"] header p,
+html[data-theme="adultos"] header span,
+html[data-theme="adultos"] header a,
+html[data-theme="adultos"] header button,
+html[data-theme="adultos"] header label {
+    color: var(--header-text-secondary) !important;
+}
+
+html[data-theme="adultos"] header a:hover,
+html[data-theme="adultos"] header button:hover {
+    color: #ffffff !important;
+}
+
+html[data-theme="adultos"] header svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+}
+
+html[data-theme="adultos"] header img {
+    filter: none !important;
+}
+
+/* =========================================================
+   FONDOS Y TARJETAS
+========================================================= */
+
+html[data-theme="adultos"] .bg-white {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="adultos"] .bg-slate-50,
+html[data-theme="adultos"] .bg-gray-50,
+html[data-theme="adultos"] .bg-neutral-50,
+html[data-theme="adultos"] .bg-zinc-50 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="adultos"] .bg-slate-100,
+html[data-theme="adultos"] .bg-gray-100,
+html[data-theme="adultos"] .bg-neutral-100,
+html[data-theme="adultos"] .bg-zinc-100 {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="adultos"] .bg-slate-200,
+html[data-theme="adultos"] .bg-gray-200 {
+    background-color: var(--border-primary) !important;
+}
+
+/* Tarjetas personalizadas */
+
+html[data-theme="adultos"] .card,
+html[data-theme="adultos"] .panel,
+html[data-theme="adultos"] .surface-card,
+html[data-theme="adultos"] .profile-card,
+html[data-theme="adultos"] .settings-card,
+html[data-theme="adultos"] .content-card,
+html[data-theme="adultos"] .info-card,
+html[data-theme="adultos"] .details-panel,
+html[data-theme="adultos"] .profile-panel {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* =========================================================
+   BORDES
+========================================================= */
+
+html[data-theme="adultos"] .border-white,
+html[data-theme="adultos"] .border-slate-100,
+html[data-theme="adultos"] .border-slate-200,
+html[data-theme="adultos"] .border-slate-300,
+html[data-theme="adultos"] .border-gray-100,
+html[data-theme="adultos"] .border-gray-200,
+html[data-theme="adultos"] .border-gray-300,
+html[data-theme="adultos"] .border-neutral-100,
+html[data-theme="adultos"] .border-neutral-200,
+html[data-theme="adultos"] .border-neutral-300 {
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="adultos"] .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="adultos"] .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="adultos"] .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-primary) !important;
+}
+
+/* =========================================================
+   TEXTOS
+========================================================= */
+
+html[data-theme="adultos"] .text-black,
+html[data-theme="adultos"] .text-slate-950,
+html[data-theme="adultos"] .text-slate-900,
+html[data-theme="adultos"] .text-slate-800,
+html[data-theme="adultos"] .text-gray-950,
+html[data-theme="adultos"] .text-gray-900,
+html[data-theme="adultos"] .text-gray-800,
+html[data-theme="adultos"] .text-neutral-950,
+html[data-theme="adultos"] .text-neutral-900 {
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="adultos"] .text-slate-700,
+html[data-theme="adultos"] .text-slate-600,
+html[data-theme="adultos"] .text-gray-700,
+html[data-theme="adultos"] .text-gray-600,
+html[data-theme="adultos"] .text-neutral-700,
+html[data-theme="adultos"] .text-neutral-600 {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="adultos"] .text-slate-500,
+html[data-theme="adultos"] .text-slate-400,
+html[data-theme="adultos"] .text-gray-500,
+html[data-theme="adultos"] .text-gray-400,
+html[data-theme="adultos"] .text-neutral-500,
+html[data-theme="adultos"] .text-neutral-400 {
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   CLASES AZULES ADAPTADAS AL TEMA
+========================================================= */
+
+html[data-theme="adultos"] .text-blue-400,
+html[data-theme="adultos"] .text-blue-500,
+html[data-theme="adultos"] .text-blue-600,
+html[data-theme="adultos"] .text-blue-700 {
+    color: var(--accent) !important;
+}
+
+html[data-theme="adultos"] .bg-blue-50,
+html[data-theme="adultos"] .bg-blue-100 {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="adultos"] .bg-blue-500,
+html[data-theme="adultos"] .bg-blue-600 {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="adultos"] .border-blue-400,
+html[data-theme="adultos"] .border-blue-500,
+html[data-theme="adultos"] .border-blue-600 {
+    border-color: var(--accent) !important;
+}
+
+html[data-theme="adultos"] .ring-blue-400,
+html[data-theme="adultos"] .ring-blue-500,
+html[data-theme="adultos"] .ring-blue-600 {
+    --tw-ring-color: var(--accent) !important;
+}
+
+html[data-theme="adultos"] .hover\:bg-blue-600:hover,
+html[data-theme="adultos"] .hover\:bg-blue-700:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+html[data-theme="adultos"] .hover\:text-blue-600:hover,
+html[data-theme="adultos"] .hover\:text-blue-700:hover {
+    color: var(--accent-hover) !important;
+}
+
+/* =========================================================
+   BOTONES PRINCIPALES
+========================================================= */
+
+html[data-theme="adultos"] button.bg-blue-600,
+html[data-theme="adultos"] a.bg-blue-600,
+html[data-theme="adultos"] .accent-bg {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
+
+    box-shadow: 0 8px 20px rgba(30, 64, 175, 0.24);
+}
+
+html[data-theme="adultos"] button.bg-blue-600:hover,
+html[data-theme="adultos"] a.bg-blue-600:hover,
+html[data-theme="adultos"] .accent-bg:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+/* =========================================================
+   BOTONES SECUNDARIOS
+========================================================= */
+
+html[data-theme="adultos"] button.bg-white,
+html[data-theme="adultos"] a.bg-white,
+html[data-theme="adultos"] button.bg-slate-50,
+html[data-theme="adultos"] a.bg-slate-50,
+html[data-theme="adultos"] button.bg-slate-100,
+html[data-theme="adultos"] a.bg-slate-100,
+html[data-theme="adultos"] button.bg-gray-50,
+html[data-theme="adultos"] a.bg-gray-50,
+html[data-theme="adultos"] button.bg-gray-100,
+html[data-theme="adultos"] a.bg-gray-100 {
+    background-color: var(--surface-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] button.bg-white:hover,
+html[data-theme="adultos"] a.bg-white:hover,
+html[data-theme="adultos"] button.bg-slate-50:hover,
+html[data-theme="adultos"] a.bg-slate-50:hover,
+html[data-theme="adultos"] button.bg-slate-100:hover,
+html[data-theme="adultos"] a.bg-slate-100:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+/* =========================================================
+   OPCIONES SELECCIONABLES
+========================================================= */
+
+html[data-theme="adultos"] .visual-option,
+html[data-theme="adultos"] .theme-option {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] .visual-option:hover,
+html[data-theme="adultos"] .theme-option:hover {
+    background-color: var(--surface-hover) !important;
+    border-color: var(--accent) !important;
+}
+
+html[data-theme="adultos"] .visual-option--selected,
+html[data-theme="adultos"] .theme-option-selected {
+    background-color: var(--accent-soft) !important;
+    color: var(--accent-text) !important;
+    border-color: var(--accent) !important;
+
+    box-shadow: 0 8px 20px rgba(30, 64, 175, 0.17);
+}
+
+html[data-theme="adultos"] .visual-option--selected p,
+html[data-theme="adultos"] .visual-option--selected span,
+html[data-theme="adultos"] .visual-option--selected strong,
+html[data-theme="adultos"] .theme-option-selected p,
+html[data-theme="adultos"] .theme-option-selected span,
+html[data-theme="adultos"] .theme-option-selected strong {
+    color: inherit !important;
+}
+
+html[data-theme="adultos"] .visual-option--selected .visual-option__icon,
+html[data-theme="adultos"] .theme-option-selected .theme-icon {
+    background-color: var(--accent-soft-hover) !important;
+    color: var(--accent) !important;
+}
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+html[data-theme="adultos"] input:not([type="range"]),
+html[data-theme="adultos"] textarea,
+html[data-theme="adultos"] select {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] input::placeholder,
+html[data-theme="adultos"] textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="adultos"] input:focus,
+html[data-theme="adultos"] textarea:focus,
+html[data-theme="adultos"] select:focus {
+    border-color: var(--accent) !important;
+    outline-color: var(--accent) !important;
+    --tw-ring-color: var(--accent) !important;
+}
+
+html[data-theme="adultos"] input[type="range"],
+html[data-theme="adultos"] input[type="checkbox"],
+html[data-theme="adultos"] input[type="radio"] {
+    accent-color: var(--accent) !important;
+}
+
+/* Autocompletado */
+
+html[data-theme="adultos"] input:-webkit-autofill,
+html[data-theme="adultos"] input:-webkit-autofill:hover,
+html[data-theme="adultos"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary) !important;
+
+    -webkit-box-shadow: 0 0 0 1000px var(--surface-primary) inset !important;
+}
+
+/* =========================================================
+   MODALES Y MENÚS
+========================================================= */
+
+html[data-theme="adultos"] [role="dialog"],
+html[data-theme="adultos"] [role="menu"],
+html[data-theme="adultos"] .modal-content,
+html[data-theme="adultos"] .dropdown-menu {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] [role="menuitem"]:hover,
+html[data-theme="adultos"] .dropdown-menu a:hover,
+html[data-theme="adultos"] .dropdown-menu button:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+html[data-theme="adultos"] table {
+    color: var(--text-primary);
+}
+
+html[data-theme="adultos"] thead,
+html[data-theme="adultos"] thead tr,
+html[data-theme="adultos"] thead th {
+    background-color: var(--surface-tertiary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] tbody,
+html[data-theme="adultos"] tbody tr,
+html[data-theme="adultos"] tbody td {
+    background-color: var(--surface-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+html[data-theme="adultos"] tbody tr:hover td {
+    background-color: var(--surface-secondary) !important;
+}
+
+/* =========================================================
+   SOMBRAS
+========================================================= */
+
+html[data-theme="adultos"] .shadow,
+html[data-theme="adultos"] .shadow-sm,
+html[data-theme="adultos"] .shadow-md,
+html[data-theme="adultos"] .shadow-lg,
+html[data-theme="adultos"] .shadow-xl,
+html[data-theme="adultos"] .shadow-2xl {
+    --tw-shadow-color: var(--shadow-color);
+}
+
+/* =========================================================
+   DECORACIÓN DE SETTINGS PARA EL TEMA ADULTOS
+========================================================= */
+
+html[data-theme="adultos"] .settings-page .bg-indigo-50,
+html[data-theme="adultos"] .settings-page .bg-indigo-100,
+html[data-theme="adultos"] .settings-page .bg-amber-50,
+html[data-theme="adultos"] .settings-page .bg-amber-100 {
+    background-color: var(--accent-soft) !important;
+}
+
+html[data-theme="adultos"] .settings-page .text-indigo-600,
+html[data-theme="adultos"] .settings-page .text-indigo-700,
+html[data-theme="adultos"] .settings-page .text-amber-600,
+html[data-theme="adultos"] .settings-page .text-amber-700 {
+    color: var(--accent-text) !important;
+}
+
+html[data-theme="adultos"] .settings-page .fa-palette,
+html[data-theme="adultos"] .settings-page .fa-text-height,
+html[data-theme="adultos"] .settings-page .fa-font,
+html[data-theme="adultos"] .settings-page .fa-circle-half-stroke,
+html[data-theme="adultos"] .settings-page .fa-eye-low-vision,
+html[data-theme="adultos"] .settings-page .fa-lock {
+    color: var(--accent) !important;
 }

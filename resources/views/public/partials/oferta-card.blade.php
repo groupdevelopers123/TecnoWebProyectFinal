@@ -9,124 +9,80 @@
     $modalId = 'detalle-oferta-' . $oferta->id;
 @endphp
 
-<div class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+<div class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+    <div class="absolute top-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-300 group-hover:w-full"></div>
 
-    {{-- Encabezado de la tarjeta --}}
-    <div class="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-violet-700 p-6 text-white">
+    <div class="relative p-6">
+        <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-700">
+            <i class="fa-solid fa-graduation-cap"></i>
+        </div>
 
-        <div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10"></div>
-        <div class="absolute -bottom-12 -left-8 h-32 w-32 rounded-full bg-white/10"></div>
+        <h3 class="text-xl font-black text-slate-900 transition-colors duration-300 group-hover:text-blue-700">
+            {{ $oferta->nombre ?: 'Oferta académica' }}
+        </h3>
 
-        <div class="relative">
+        <p class="mt-2 text-sm font-semibold text-slate-500">
+            {{ $oferta->carrera?->nombre ?? 'Carrera no registrada' }}
+        </p>
 
-            <div class="mb-4 flex items-start justify-between gap-4">
+        <div class="mt-5 grid gap-3 text-sm">
+            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                <span class="font-bold text-slate-500">Periodo</span>
+                <span class="font-black text-slate-800">
+                    {{ $oferta->periodoAcademico?->nombre ?? 'No registrado' }}
+                    @if ($oferta->periodoAcademico?->gestion)
+                        · {{ $oferta->periodoAcademico->gestion }}
+                    @endif
+                </span>
+            </div>
 
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-xl backdrop-blur-sm">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </div>
+            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                <span class="font-bold text-slate-500">Régimen</span>
+                <span class="font-black text-slate-800">{{ $regimen }}</span>
+            </div>
 
+            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                <span class="font-bold text-slate-500">Duración</span>
+                <span class="font-black text-slate-800">{{ $duracion }}</span>
+            </div>
+
+            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                <span class="font-bold text-slate-500">Estado</span>
                 @if ($oferta->estado && $oferta->cupos_disponibles > 0)
-                    <span class="inline-flex items-center gap-2 rounded-full bg-emerald-400/20 px-3 py-1.5 text-xs font-black text-emerald-50 backdrop-blur-sm">
-                        <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                        Cupos disponibles
+                    <span class="inline-flex items-center gap-2 font-black text-emerald-700">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </span>
+                        Activa
                     </span>
                 @else
-                    <span class="inline-flex items-center gap-2 rounded-full bg-red-400/20 px-3 py-1.5 text-xs font-black text-red-50 backdrop-blur-sm">
-                        <span class="h-2 w-2 rounded-full bg-red-300"></span>
-                        Sin cupos
+                    <span class="inline-flex items-center gap-2 font-black text-red-700">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="2" />
+                            </svg>
+                        </span>
+                        Inactiva
                     </span>
                 @endif
-
             </div>
-
-            <h3 class="text-2xl font-black leading-tight">
-                {{ $oferta->carrera?->nombre ?? 'Carrera no registrada' }}
-            </h3>
-
-            @if ($oferta->carrera?->codigo)
-                <p class="mt-2 text-sm font-bold text-blue-100">
-                    Código: {{ $oferta->carrera->codigo }}
-                </p>
-            @endif
-
-        </div>
-    </div>
-
-    {{-- Información resumida --}}
-    <div class="flex flex-1 flex-col p-6">
-
-        <div>
-            <p class="text-xs font-black uppercase tracking-wider text-slate-400">
-                Oferta académica
-            </p>
-
-            <h4 class="mt-2 text-lg font-black text-slate-900">
-                {{ $oferta->nombre ?: 'Oferta académica' }}
-            </h4>
-
-            <p class="mt-2 text-sm text-slate-500">
-                {{ $oferta->periodoAcademico?->nombre ?? 'Periodo no registrado' }}
-
-                @if ($oferta->periodoAcademico?->gestion)
-                    · {{ $oferta->periodoAcademico->gestion }}
-                @endif
-            </p>
         </div>
 
-        {{-- Régimen y duración --}}
-        <div class="mt-5 grid grid-cols-2 gap-3">
-
-            <div class="rounded-2xl bg-violet-50 p-4">
-
-                <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
-                    <i class="fa-solid fa-calendar-days text-sm"></i>
-                </div>
-
-                <p class="text-xs font-bold uppercase text-violet-500">
-                    Régimen
-                </p>
-
-                <p class="mt-1 font-black text-violet-800">
-                    {{ $regimen }}
-                </p>
-
-            </div>
-
-            <div class="rounded-2xl bg-amber-50 p-4">
-
-                <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                    <i class="fa-solid fa-hourglass-half text-sm"></i>
-                </div>
-
-                <p class="text-xs font-bold uppercase text-amber-600">
-                    Duración
-                </p>
-
-                <p class="mt-1 font-black text-amber-800">
-                    {{ $duracion }}
-                </p>
-
-            </div>
-
-        </div>
-
-        {{-- Botones de la tarjeta --}}
-        <div class="mt-auto grid gap-3 pt-6 sm:grid-cols-2">
-
+        <div class="mt-6 grid gap-3 pt-4 sm:grid-cols-2">
             <button type="button"
                     onclick="document.getElementById('{{ $modalId }}').showModal()"
                     class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-black text-blue-700 transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100">
-
                 <i class="fa-solid fa-eye text-xs"></i>
                 Ver detalle
             </button>
 
             @if ($oferta->estado && $oferta->cupos_disponibles > 0)
-
                 @auth
                     <a href="{{ route('public.ofertas.inscribirse', $oferta) }}"
                        class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">
-
                         <i class="fa-solid fa-user-plus text-xs"></i>
                         Inscribirme
                     </a>
@@ -134,50 +90,34 @@
                     <button type="button"
                             onclick="mostrarMensajeAutenticacion('{{ $modalId }}')"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">
-
                         <i class="fa-solid fa-user-plus text-xs"></i>
                         Inscribirme
                     </button>
                 @endauth
-
             @else
                 <button type="button"
                         disabled
                         class="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-2xl bg-slate-300 px-5 py-3 text-sm font-black text-slate-500">
-
                     <i class="fa-solid fa-ban text-xs"></i>
                     No disponible
                 </button>
             @endif
-
         </div>
 
-        {{-- Mensaje para usuario no autenticado --}}
         @guest
             <div id="mensaje-auth-{{ $modalId }}"
                  class="mt-4 hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-
                 <div class="flex items-start gap-3">
-
                     <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
                         <i class="fa-solid fa-circle-info"></i>
                     </div>
-
                     <div>
-                        <p class="font-black">
-                            Debes iniciar sesión
-                        </p>
-
-                        <p class="mt-1">
-                            Para inscribirte en esta oferta académica debes
-                            iniciar sesión o registrarte.
-                        </p>
+                        <p class="font-black">Debes iniciar sesión</p>
+                        <p class="mt-1">Para inscribirte en esta oferta académica debes iniciar sesión o registrarte.</p>
                     </div>
-
                 </div>
             </div>
         @endguest
-
     </div>
 </div>
 
