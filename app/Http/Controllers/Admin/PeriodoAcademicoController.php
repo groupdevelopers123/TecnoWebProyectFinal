@@ -20,6 +20,30 @@ class PeriodoAcademicoController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $periodos->getCollection()->map(function ($periodo) {
+                    return [
+                        'id' => $periodo->id,
+                        'nombre' => $periodo->nombre,
+                        'gestion' => $periodo->gestion,
+                        'tipo_periodo' => $periodo->tipo_periodo,
+                        'fecha_inicio' => $periodo->fecha_inicio?->format('d/m/Y'),
+                        'fecha_fin' => $periodo->fecha_fin?->format('d/m/Y'),
+                        'estado' => (bool) $periodo->estado,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $periodos->currentPage(),
+                    'last_page' => $periodos->lastPage(),
+                    'per_page' => $periodos->perPage(),
+                    'total' => $periodos->total(),
+                    'prev_page_url' => $periodos->previousPageUrl(),
+                    'next_page_url' => $periodos->nextPageUrl(),
+                ],
+            ]);
+        }
+
         return view('admin.periodos.index', compact('periodos'));
     }
 

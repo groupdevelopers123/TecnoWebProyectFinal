@@ -27,11 +27,12 @@ class ReporteController extends Controller
 
             'estadisticas' => $this->estadisticasGenerales($inicio, $fin),
 
-            'pagosMensuales' => $this->pagosMensuales($inicio, $fin),
-            'inscripcionesMensuales' => $this->inscripcionesMensuales($inicio, $fin),
-            'creditosPorEstado' => $this->creditosPorEstado($inicio, $fin),
-            'cuotasPorEstado' => $this->cuotasPorEstado($inicio, $fin),
-            'ojivaInscripciones' => $this->ojivaInscripciones($inicio, $fin),
+            'pagosContados' => $this->pagosContadosMensuales($inicio, $fin),
+            'pagosCreditos' => $this->pagosCreditosMensuales($inicio, $fin),
+            'pagosContadosCantidad' => $this->pagosContadosCantidadMensuales($inicio, $fin),
+            'pagosCreditosCantidad' => $this->pagosCreditosCantidadMensuales($inicio, $fin),
+            'inscripciones' => $this->inscripcionesMensuales($inicio, $fin),
+            'pagosPorConcepto' => $this->pagosPorConcepto($inicio, $fin),
         ]);
     }
 
@@ -244,6 +245,116 @@ class ReporteController extends Controller
                 'total' => round((float) ($contado[$mes] ?? 0) + (float) ($cuotas[$mes] ?? 0), 2),
             ];
         })->toArray();
+    }
+
+    private function pagosContadosMensuales(Carbon $inicio, Carbon $fin): array
+    {
+        return PagoContado::query()
+            ->selectRaw("TO_CHAR(fecha_pago, 'YYYY-MM') as mes")
+            ->selectRaw("SUM(monto_pagado) as total")
+            ->where('estado', 'Confirmado')
+            ->whereBetween('fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get()
+            ->map(fn ($item) => [
+                'mes' => $item->mes,
+                'total' => round((float) $item->total, 2),
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function pagosCreditosMensuales(Carbon $inicio, Carbon $fin): array
+    {
+        return PagoCuota::query()
+            ->selectRaw("TO_CHAR(fecha_pago, 'YYYY-MM') as mes")
+            ->selectRaw("SUM(monto) as total")
+            ->where('estado_cuota', 'pagado')
+            ->whereBetween('fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get()
+            ->map(fn ($item) => [
+                'mes' => $item->mes,
+                'total' => round((float) $item->total, 2),
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function pagosContadosCantidadMensuales(Carbon $inicio, Carbon $fin): array
+    {
+        return PagoContado::query()
+            ->selectRaw("TO_CHAR(fecha_pago, 'YYYY-MM') as mes")
+            ->selectRaw("COUNT(*) as total")
+            ->where('estado', 'Confirmado')
+            ->whereBetween('fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get()
+            ->map(fn ($item) => [
+                'mes' => $item->mes,
+                'total' => (int) $item->total,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function pagosCreditosCantidadMensuales(Carbon $inicio, Carbon $fin): array
+    {
+        return PagoCuota::query()
+            ->selectRaw("TO_CHAR(fecha_pago, 'YYYY-MM') as mes")
+            ->selectRaw("COUNT(*) as total")
+            ->where('estado_cuota', 'pagado')
+            ->whereBetween('fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get()
+            ->map(fn ($item) => [
+                'mes' => $item->mes,
+                'total' => (int) $item->total,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function pagosPorConcepto(Carbon $inicio, Carbon $fin): array
+    {
+        $contado = PagoContado::query()
+            ->select('concepto_pagos.nombre as concepto')
+            ->selectRaw('SUM(pago_contados.monto_pagado) as total')
+            ->join('concepto_pagos', 'pago_contados.concepto_pago_id', '=', 'concepto_pagos.id')
+            ->where('pago_contados.estado', 'Confirmado')
+            ->whereBetween('pago_contados.fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('concepto_pagos.nombre');
+
+        $creditos = PagoCuota::query()
+            ->select('concepto_pagos.nombre as concepto')
+            ->selectRaw('SUM(pago_cuotas.monto) as total')
+            ->join('creditos', 'pago_cuotas.credito_id', '=', 'creditos.id')
+            ->join('concepto_pagos', 'creditos.concepto_pago_id', '=', 'concepto_pagos.id')
+            ->where('pago_cuotas.estado_cuota', 'pagado')
+            ->whereBetween('pago_cuotas.fecha_pago', [$inicio->format('Y-m-d'), $fin->format('Y-m-d')])
+            ->groupBy('concepto_pagos.nombre');
+
+        $merged = collect($contado->get()->map(fn ($item) => [
+            'concepto' => $item->concepto,
+            'total' => (float) $item->total,
+        ]))->merge($creditos->get()->map(fn ($item) => [
+            'concepto' => $item->concepto,
+            'total' => (float) $item->total,
+        ]));
+
+        return $merged
+            ->groupBy('concepto')
+            ->map(fn ($items, $concepto) => [
+                'concepto' => $concepto,
+                'total' => round($items->sum('total'), 2),
+            ])
+            ->sortByDesc('total')
+            ->values()
+            ->toArray();
     }
 
     private function creditosPorEstado(Carbon $inicio, Carbon $fin): array

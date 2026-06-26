@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateAulaRequest;
 use App\Models\Aula;
 use Illuminate\Http\Request;
 
+
 class AulaController extends Controller
 {
     public function index(Request $request)
@@ -28,6 +29,32 @@ class AulaController extends Controller
             ->latest()
             ->paginate(10)
             ->withQueryString();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $aulas->getCollection()->map(function ($aula) {
+                    return [
+                        'id' => $aula->id,
+                        'codigo' => $aula->codigo,
+                        'nombre' => $aula->nombre,
+                        'ubicacion' => $aula->ubicacion,
+                        'piso' => $aula->piso,
+                        'capacidad' => $aula->capacidad,
+                        'largo' => $aula->largo,
+                        'ancho' => $aula->ancho,
+                        'disponible' => (bool) $aula->disponible,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $aulas->currentPage(),
+                    'last_page' => $aulas->lastPage(),
+                    'per_page' => $aulas->perPage(),
+                    'total' => $aulas->total(),
+                    'prev_page_url' => $aulas->previousPageUrl(),
+                    'next_page_url' => $aulas->nextPageUrl(),
+                ],
+            ]);
+        }
 
         return view('admin.aulas.index', compact('aulas'));
     }

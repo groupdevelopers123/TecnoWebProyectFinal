@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\SeguimientoAcademicoController;
 use App\Http\Controllers\Admin\ConceptoPagoController;
 use App\Http\Controllers\Admin\PagoContadoController;
 use App\Http\Controllers\Api\PagoFacilCallbackController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use App\Http\Controllers\Admin\CreditoController;
@@ -198,6 +199,9 @@ Route::middleware(['auth', 'role:docente'])->group(function () {
     Route::get('/docente/materias', [DocenteMateriasController::class, 'index'])
         ->name('docente.materias');
 
+    Route::get('/docente/horarios', [DocenteMateriasController::class, 'horarios'])
+        ->name('docente.horarios');
+
     Route::get('/docente/materias/{materia}', [DocenteMateriasController::class, 'show'])
         ->name('docente.materias.show');
 
@@ -226,6 +230,12 @@ Route::middleware(['auth', 'role:alumno'])
 
         Route::get('/materias-inscritas/{inscripcionMateria}/seguimiento', [AlumnoMateriasInscritasController::class, 'showSeguimiento'])
             ->name('materias.seguimiento');
+
+        Route::post('/notificaciones/{notification}/marcar-leida', [NotificationController::class, 'markAsRead'])
+            ->name('notificaciones.marcar-leida');
+
+        Route::get('/horario', [AlumnoMateriasInscritasController::class, 'horario'])
+            ->name('horario');
 
         Route::get('/mis-pagos', [AlumnoPagoContadoController::class, 'index'])
             ->name('mis-pagos');

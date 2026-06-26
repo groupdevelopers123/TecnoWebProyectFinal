@@ -187,9 +187,6 @@
 
         <div id="contenido-qr-pendiente">
             <div class="mb-5 text-center">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-2xl text-emerald-700">
-                    <i class="fa-solid fa-qrcode"></i>
-                </div>
 
                 <h2 class="mt-4 text-2xl font-black text-slate-900">QR PagoFácil generado</h2>
                 <p class="mt-2 text-sm text-slate-500">

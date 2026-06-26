@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CreditoRequest;
 use App\Models\ConceptoPago;
 use App\Models\Credito;
 use App\Models\Inscripcion;
+use App\Notifications\CreditoHabilitado;
 use App\Services\CreditoCuotaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,8 +66,12 @@ class CreditoController extends Controller
             $data['estado'] = 'activo';
 
             $credito = Credito::create($data);
-
             $cuotaService->generarCuotas($credito);
+
+            $alumno = $credito->inscripcion->alumnoDetalle->user;
+            if ($alumno) {
+                $alumno->notify(new CreditoHabilitado($credito));
+            }
         });
 
         return redirect()

@@ -16,6 +16,7 @@ class MateriaController extends Controller
     public function index(Request $request)
     {
         $materias = Materia::query()
+            ->with(['docenteDetalle.user'])
             ->when($request->buscar, function ($query, $buscar) {
                 $query->where('codigo', 'ILIKE', "%{$buscar}%")
                     ->orWhere('nombre', 'ILIKE', "%{$buscar}%");
@@ -23,6 +24,29 @@ class MateriaController extends Controller
             ->latest()
             ->paginate(10)
             ->withQueryString();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $materias->getCollection()->map(function ($materia) {
+                    return [
+                        'id' => $materia->id,
+                        'codigo' => $materia->codigo,
+                        'nombre' => $materia->nombre,
+                        'carga_horaria' => $materia->carga_horaria,
+                        'estado' => (bool) $materia->estado,
+                        'docente' => $materia->docenteDetalle?->user ? trim($materia->docenteDetalle->user->nombres.' '.$materia->docenteDetalle->user->apellidos) : null,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $materias->currentPage(),
+                    'last_page' => $materias->lastPage(),
+                    'per_page' => $materias->perPage(),
+                    'total' => $materias->total(),
+                    'prev_page_url' => $materias->previousPageUrl(),
+                    'next_page_url' => $materias->nextPageUrl(),
+                ],
+            ]);
+        }
 
         return view('admin.materias.index', compact('materias'));
     }

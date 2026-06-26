@@ -95,6 +95,54 @@ class AlumnoMateriasInscritasController extends Controller
         ]);
     }
 
+    public function horario(): Response
+    {
+        $alumno = AlumnoDetalle::query()
+            ->where('user_id', auth()->id())
+            ->first();
+
+        $inscripcionMaterias = collect();
+
+        if ($alumno) {
+            $inscripcionMaterias = $alumno->inscripciones()
+                ->with([
+                    'inscripcionMaterias.carreraMateria.materia',
+                    'inscripcionMaterias.carreraMateria.horarios.aula',
+                    'ofertaAcademica.carrera',
+                ])
+                ->get()
+                ->pluck('inscripcionMaterias')
+                ->flatten();
+        }
+
+        $horariosAgrupados = $inscripcionMaterias
+            ->groupBy(fn ($inscripcionMateria) => $inscripcionMateria->carreraMateria->materia->id)
+            ->map(fn ($materiaGroup) => [
+                'materia_id' => $materiaGroup->first()->carreraMateria->materia->id,
+                'codigo' => $materiaGroup->first()->carreraMateria->materia->codigo,
+                'nombre' => $materiaGroup->first()->carreraMateria->materia->nombre,
+                'carreras' => $materiaGroup
+                    ->pluck('carreraMateria.carrera.nombre')
+                    ->unique()
+                    ->values(),
+                'horarios' => $materiaGroup
+                    ->flatMap(fn ($inscripcionMateria) => $inscripcionMateria->carreraMateria->horarios)
+                    ->map(fn ($horario) => [
+                        'dia' => $horario->dia,
+                        'hora_inicio' => substr($horario->hora_inicio, 0, 5),
+                        'hora_fin' => substr($horario->hora_fin, 0, 5),
+                        'aula' => $horario->aula?->nombre ?? 'Sin aula',
+                        'estado' => $horario->estado ? 'Activo' : 'Inactivo',
+                    ])
+                    ->values(),
+            ])
+            ->values();
+
+        return Inertia::render('alumno/horario', [
+            'horarios' => $horariosAgrupados,
+        ]);
+    }
+
     public function showSeguimiento(InscripcionMateria $inscripcionMateria): Response
     {
         $inscripcionMateria->load([

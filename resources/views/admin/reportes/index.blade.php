@@ -111,48 +111,102 @@
     <div class="grid gap-6 xl:grid-cols-2">
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="mb-5">
-                <h2 class="text-lg font-black text-slate-900">Pagos mensuales</h2>
-                <p class="text-sm text-slate-500">Comparación entre pagos al contado y cuotas pagadas.</p>
+            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900">Diagrama de barras</h2>
+                    <p class="text-sm text-slate-500">Selecciona la métrica y el período para ver el gráfico.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Métrica</span>
+                        <select id="barMetric" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="Pagos Totales" selected>Pagos Totales</option>
+                            <option value="Pagos Contados">Pagos Contados</option>
+                            <option value="Pagos Creditos">Pagos Creditos</option>
+                            <option value="Pagos por concepto de pago">Pagos por concepto de pago</option>
+                            <option value="Cantidad pagos e inscripciones">Cantidad pagos e inscripciones</option>
+                            <option value="Inscripciones">Inscripciones</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Período</span>
+                        <select id="barPeriod" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="month">Mes</option>
+                            <option value="quarter">Trimestre</option>
+                            <option value="semester">Semestre</option>
+                            <option value="year">Año</option>
+                        </select>
+                    </label>
+                </div>
             </div>
 
-            <canvas id="chartPagosMensuales" height="130"></canvas>
+            <canvas id="chartBar" height="140"></canvas>
         </div>
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="mb-5">
-                <h2 class="text-lg font-black text-slate-900">Inscripciones mensuales</h2>
-                <p class="text-sm text-slate-500">Cantidad de inscripciones registradas por mes.</p>
+            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900">Diagrama de pastel</h2>
+                    <p class="text-sm text-slate-500">Visualiza la participación relativa del periodo seleccionado.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Métrica</span>
+                        <select id="pieMetric" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="Pagos Totales" selected>Pagos Totales</option>
+                            <option value="Pagos Contados">Pagos Contados</option>
+                            <option value="Pagos Creditos">Pagos Creditos</option>
+                            <option value="Pagos por concepto de pago">Pagos por concepto de pago</option>
+                            <option value="Cantidad pagos e inscripciones">Cantidad pagos e inscripciones</option>
+                            <option value="Inscripciones">Inscripciones</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Período</span>
+                        <select id="piePeriod" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="month">Mes</option>
+                            <option value="quarter">Trimestre</option>
+                            <option value="semester">Semestre</option>
+                            <option value="year">Año</option>
+                        </select>
+                    </label>
+                </div>
             </div>
 
-            <canvas id="chartInscripciones" height="130"></canvas>
-        </div>
-
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="mb-5">
-                <h2 class="text-lg font-black text-slate-900">Créditos por estado</h2>
-                <p class="text-sm text-slate-500">Distribución porcentual de créditos.</p>
-            </div>
-
-            <canvas id="chartCreditosEstado" height="130"></canvas>
-        </div>
-
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="mb-5">
-                <h2 class="text-lg font-black text-slate-900">Cuotas por estado</h2>
-                <p class="text-sm text-slate-500">Distribución de cuotas pendientes, pagadas o anuladas.</p>
-            </div>
-
-            <canvas id="chartCuotasEstado" height="130"></canvas>
+            <canvas id="chartPie" height="140"></canvas>
         </div>
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
-            <div class="mb-5">
-                <h2 class="text-lg font-black text-slate-900">Ojiva de inscripciones</h2>
-                <p class="text-sm text-slate-500">Frecuencia acumulada de inscripciones por mes.</p>
+            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900">Diagrama de ojiva</h2>
+                    <p class="text-sm text-slate-500">Observa la tendencia acumulada de la métrica seleccionada.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Métrica</span>
+                        <select id="ojivaMetric" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="Pagos Totales" selected>Pagos Totales</option>
+                            <option value="Pagos Contados">Pagos Contados</option>
+                            <option value="Pagos Creditos">Pagos Creditos</option>
+                            <option value="Pagos por concepto de pago">Pagos por concepto de pago</option>
+                            <option value="Cantidad pagos e inscripciones">Cantidad pagos e inscripciones</option>
+                            <option value="Inscripciones">Inscripciones</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">Período</span>
+                        <select id="ojivaPeriod" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                            <option value="month">Mes</option>
+                            <option value="quarter">Trimestre</option>
+                            <option value="semester">Semestre</option>
+                            <option value="year">Año</option>
+                        </select>
+                    </label>
+                </div>
             </div>
 
-            <canvas id="chartOjiva" height="90"></canvas>
+            <canvas id="chartOjiva" height="120"></canvas>
         </div>
 
     </div>
@@ -248,11 +302,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const pagosMensuales = @json($pagosMensuales);
-    const inscripcionesMensuales = @json($inscripcionesMensuales);
-    const creditosPorEstado = @json($creditosPorEstado);
-    const cuotasPorEstado = @json($cuotasPorEstado);
-    const ojivaInscripciones = @json($ojivaInscripciones);
+    const pagosContados = @json($pagosContados);
+    const pagosCreditos = @json($pagosCreditos);
+    const pagosContadosCantidad = @json($pagosContadosCantidad);
+    const pagosCreditosCantidad = @json($pagosCreditosCantidad);
+    const inscripciones = @json($inscripciones);
+    const pagosPorConcepto = @json($pagosPorConcepto);
+
+    const metricSources = {
+        'Pagos Contados': pagosContados,
+        'Pagos Creditos': pagosCreditos,
+        'Pagos Totales': null,
+        'Pagos por concepto de pago': pagosPorConcepto,
+        'Cantidad pagos e inscripciones': null,
+        'Inscripciones': inscripciones,
+    };
 
     const chartOptions = {
         responsive: true,
@@ -272,85 +336,398 @@
         }
     };
 
-    new Chart(document.getElementById('chartPagosMensuales'), {
-        type: 'bar',
+    const barPalette = ['#7dd3fc', '#fb7185', '#fbbf24', '#a78bfa', '#34d399', '#60a5fa', '#f472b6', '#f9a8d4', '#f97316', '#10b981', '#8b5cf6', '#e879f9'];
+    const barBorderPalette = ['#0284c7', '#be123c', '#b45309', '#7c3aed', '#047857', '#075985', '#be185d', '#c084fc', '#c2410c', '#047857', '#4c1d95', '#9d174d'];
+    const piePalette = ['#38bdf8', '#fb7185', '#fde68a', '#a78bfa', '#34d399', '#60a5fa', '#f472b6', '#f9a8d4'];
+    const pieBorderPalette = ['#1e3a8a', '#7c2d12', '#92400e', '#5b21b6', '#065f46', '#0c4a6e', '#831843', '#9d174d'];
+    const pieTotalsColors = ['#38bdf8', '#fb7185'];
+    const pieCountColors = ['#38bdf8', '#fb7185', '#fde68a'];
+    const multiSeriesColors = {
+        'Pagos Contados': { backgroundColor: '#38bdf8', borderColor: '#1d4ed8' },
+        'Pagos Creditos': { backgroundColor: '#fb7185', borderColor: '#be123c' },
+        'Inscripciones': { backgroundColor: '#fde68a', borderColor: '#ca8a04' },
+    };
+
+    const defaultMetric = 'Pagos Totales';
+    const defaultPeriod = 'month';
+
+    function normalizePeriodKey(mes, period) {
+        const [year, month] = mes.split('-').map(Number);
+
+        if (period === 'month') {
+            return mes;
+        }
+
+        if (period === 'quarter') {
+            return `${year}-Q${Math.ceil(month / 3)}`;
+        }
+
+        if (period === 'semester') {
+            return `${year}-S${month <= 6 ? 1 : 2}`;
+        }
+
+        return `${year}`;
+    }
+
+    function sortPeriodKeys(a, b) {
+        const [aYear, aRange] = a.split('-');
+        const [bYear, bRange] = b.split('-');
+
+        if (aYear !== bYear) {
+            return Number(aYear) - Number(bYear);
+        }
+
+        if (!aRange && !bRange) {
+            return 0;
+        }
+
+        if (!aRange) {
+            return -1;
+        }
+
+        if (!bRange) {
+            return 1;
+        }
+
+        const valueFor = (range) => {
+            if (range.startsWith('Q')) {
+                return Number(range.slice(1));
+            }
+            if (range.startsWith('S')) {
+                return Number(range.slice(1)) * 10;
+            }
+            return 0;
+        };
+
+        return valueFor(aRange) - valueFor(bRange);
+    }
+
+    function aggregateByPeriod(source, period) {
+        const aggregated = source.reduce((carry, item) => {
+            const key = normalizePeriodKey(item.mes, period);
+            carry[key] = (carry[key] || 0) + Number(item.total);
+            return carry;
+        }, {});
+
+        return Object.entries(aggregated)
+            .sort(([a], [b]) => sortPeriodKeys(a, b))
+            .map(([periodKey, total]) => ({ period: periodKey, total: Number(total.toFixed(2)) }));
+    }
+
+    function createDataset(metric, period) {
+        if (metric === 'Pagos Totales') {
+            const contadoByPeriod = aggregateByPeriod(pagosContados, period);
+            const creditosByPeriod = aggregateByPeriod(pagosCreditos, period);
+            const allPeriods = [...new Set([...contadoByPeriod.map(item => item.period), ...creditosByPeriod.map(item => item.period)])].sort(sortPeriodKeys);
+
+            return allPeriods.map(periodKey => ({
+                period: periodKey,
+                contado: contadoByPeriod.find(item => item.period === periodKey)?.total || 0,
+                creditos: creditosByPeriod.find(item => item.period === periodKey)?.total || 0,
+            }));
+        }
+
+        if (metric === 'Pagos por concepto de pago') {
+            if (pagosPorConcepto.length === 0) {
+                return [{ concepto: 'Sin datos', total: 0 }];
+            }
+
+            return pagosPorConcepto.map(item => ({
+                concepto: item.concepto,
+                total: Number(item.total),
+            }));
+        }
+
+        if (metric === 'Cantidad pagos e inscripciones') {
+            const contadoByPeriod = aggregateByPeriod(pagosContadosCantidad, period);
+            const creditosByPeriod = aggregateByPeriod(pagosCreditosCantidad, period);
+            const inscripcionesByPeriod = aggregateByPeriod(inscripciones, period);
+            const allPeriods = [...new Set([...contadoByPeriod.map(item => item.period), ...creditosByPeriod.map(item => item.period), ...inscripcionesByPeriod.map(item => item.period)])].sort(sortPeriodKeys);
+
+            return allPeriods.map(periodKey => ({
+                period: periodKey,
+                contado: contadoByPeriod.find(item => item.period === periodKey)?.total || 0,
+                creditos: creditosByPeriod.find(item => item.period === periodKey)?.total || 0,
+                inscripciones: inscripcionesByPeriod.find(item => item.period === periodKey)?.total || 0,
+            }));
+        }
+
+        const source = metricSources[metric] || [];
+        const grouped = aggregateByPeriod(source, period);
+
+        if (grouped.length === 0) {
+            return [{ period: 'Sin datos', total: 0 }];
+        }
+
+        return grouped;
+    }
+
+    function createChart(context, type, config) {
+        return new Chart(context, {
+            type,
+            data: config.data,
+            options: config.options,
+        });
+    }
+
+    const barChart = createChart(document.getElementById('chartBar'), 'bar', {
         data: {
-            labels: pagosMensuales.map(item => item.mes),
-            datasets: [
-                {
-                    label: 'Pagos contado',
-                    data: pagosMensuales.map(item => item.contado),
-                    borderWidth: 1
-                },
-                {
-                    label: 'Pagos cuotas',
-                    data: pagosMensuales.map(item => item.cuotas),
-                    borderWidth: 1
-                }
-            ]
+            labels: [],
+            datasets: [{
+                label: defaultMetric,
+                data: [],
+                backgroundColor: '#2563eb',
+                borderColor: '#1d4ed8',
+                borderWidth: 1,
+            }]
         },
-        options: chartOptions
+        options: chartOptions,
     });
 
-    new Chart(document.getElementById('chartInscripciones'), {
-        type: 'bar',
+    const pieChart = createChart(document.getElementById('chartPie'), 'pie', {
         data: {
-            labels: inscripcionesMensuales.map(item => item.mes),
-            datasets: [
-                {
-                    label: 'Inscripciones',
-                    data: inscripcionesMensuales.map(item => item.total),
-                    borderWidth: 1
-                }
-            ]
+            labels: [],
+            datasets: [{
+                label: defaultMetric,
+                data: [],
+                backgroundColor: [
+                    '#2563eb',
+                    '#16a34a',
+                    '#f59e0b',
+                    '#9333ea',
+                    '#db2777',
+                    '#0ea5e9',
+                    '#14b8a6',
+                    '#f97316',
+                ],
+                borderColor: '#fff',
+                borderWidth: 1,
+            }]
         },
-        options: chartOptions
-    });
-
-    new Chart(document.getElementById('chartCreditosEstado'), {
-        type: 'pie',
-        data: {
-            labels: creditosPorEstado.map(item => item.estado),
-            datasets: [
-                {
-                    label: 'Créditos',
-                    data: creditosPorEstado.map(item => item.total),
-                    borderWidth: 1
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { weight: 'bold' }
+                    }
                 }
-            ]
+            }
         }
     });
 
-    new Chart(document.getElementById('chartCuotasEstado'), {
-        type: 'doughnut',
+    const ojivaChart = createChart(document.getElementById('chartOjiva'), 'line', {
         data: {
-            labels: cuotasPorEstado.map(item => item.estado),
-            datasets: [
-                {
-                    label: 'Cuotas',
-                    data: cuotasPorEstado.map(item => item.total),
-                    borderWidth: 1
-                }
-            ]
-        }
+            labels: [],
+            datasets: [{
+                label: `${defaultMetric} acumulado`,
+                data: [],
+                tension: 0.35,
+                fill: false,
+                borderColor: '#9333ea',
+                backgroundColor: '#9333ea',
+                pointRadius: 4,
+                borderWidth: 3,
+            }]
+        },
+        options: chartOptions,
     });
 
-    new Chart(document.getElementById('chartOjiva'), {
-        type: 'line',
-        data: {
-            labels: ojivaInscripciones.map(item => item.mes),
-            datasets: [
-                {
-                    label: 'Inscripciones acumuladas',
-                    data: ojivaInscripciones.map(item => item.acumulado),
+    function updateChart(chart, metric, period, labelSuffix = '') {
+        const dataset = createDataset(metric, period);
+        let labels = [];
+        let values = [];
+        let datasets = [];
+
+        if (metric === 'Pagos Totales') {
+            labels = dataset.map(item => item.period);
+            const contadoValues = dataset.map(item => item.contado);
+            const creditosValues = dataset.map(item => item.creditos);
+
+            if (chart === pieChart) {
+                const totalContado = contadoValues.reduce((sum, value) => sum + value, 0);
+                const totalCreditos = creditosValues.reduce((sum, value) => sum + value, 0);
+                labels = ['Pagos Contados', 'Pagos Creditos'];
+                values = [totalContado, totalCreditos];
+                datasets = [{
+                    label: metric,
+                    data: values,
+                    backgroundColor: pieTotalsColors.slice(0, values.length),
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                }];
+            } else if (chart === ojivaChart) {
+                const combined = contadoValues.map((value, index) => value + creditosValues[index]);
+                const cumulative = combined.reduce((acc, value) => {
+                    const next = acc.length ? acc[acc.length - 1] + value : value;
+                    acc.push(Number(next.toFixed(2)));
+                    return acc;
+                }, []);
+                labels = dataset.map(item => item.period);
+                datasets = [{
+                    label: `${metric}${labelSuffix}`,
+                    data: cumulative,
                     tension: 0.35,
                     fill: false,
-                    borderWidth: 3
-                }
-            ]
-        },
-        options: chartOptions
-    });
+                    borderColor: '#9333ea',
+                    backgroundColor: '#9333ea',
+                    pointRadius: 4,
+                    borderWidth: 3,
+                }];
+            } else {
+                datasets = [
+                    {
+                        label: 'Pagos Contados',
+                        data: contadoValues,
+                        backgroundColor: multiSeriesColors['Pagos Contados'].backgroundColor,
+                        borderColor: multiSeriesColors['Pagos Contados'].borderColor,
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Pagos Creditos',
+                        data: creditosValues,
+                        backgroundColor: multiSeriesColors['Pagos Creditos'].backgroundColor,
+                        borderColor: multiSeriesColors['Pagos Creditos'].borderColor,
+                        borderWidth: 1,
+                    }
+                ];
+            }
+        } else if (metric === 'Pagos por concepto de pago') {
+            labels = dataset.map(item => item.concepto);
+            values = dataset.map(item => item.total);
+            datasets = [{
+                label: metric,
+                data: values,
+                backgroundColor: chart === pieChart ? piePalette.slice(0, values.length) : values.map((_, index) => barPalette[index % barPalette.length]),
+                borderColor: chart === pieChart ? pieBorderPalette.slice(0, values.length) : values.map((_, index) => barBorderPalette[index % barBorderPalette.length]),
+                borderWidth: 1,
+            }];
+
+            if (chart === ojivaChart) {
+                const cumulative = values.reduce((acc, value) => {
+                    const next = acc.length ? acc[acc.length - 1] + value : value;
+                    acc.push(Number(next.toFixed(2)));
+                    return acc;
+                }, []);
+                datasets[0].data = cumulative;
+                datasets[0].borderColor = '#9333ea';
+                datasets[0].backgroundColor = '#9333ea';
+            }
+        } else if (metric === 'Cantidad pagos e inscripciones') {
+            labels = dataset.map(item => item.period);
+            const contadoValues = dataset.map(item => item.contado);
+            const creditosValues = dataset.map(item => item.creditos);
+            const inscripcionesValues = dataset.map(item => item.inscripciones);
+
+            if (chart === pieChart) {
+                labels = ['Pagos Contados', 'Pagos Creditos', 'Inscripciones'];
+                values = [
+                    contadoValues.reduce((sum, value) => sum + value, 0),
+                    creditosValues.reduce((sum, value) => sum + value, 0),
+                    inscripcionesValues.reduce((sum, value) => sum + value, 0),
+                ];
+                datasets = [{
+                    label: metric,
+                    data: values,
+                    backgroundColor: pieCountColors.slice(0, values.length),
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                }];
+            } else if (chart === ojivaChart) {
+                const combined = contadoValues.map((value, index) => value + creditosValues[index] + inscripcionesValues[index]);
+                const cumulative = combined.reduce((acc, value) => {
+                    const next = acc.length ? acc[acc.length - 1] + value : value;
+                    acc.push(Number(next.toFixed(2)));
+                    return acc;
+                }, []);
+                datasets = [{
+                    label: `${metric}${labelSuffix}`,
+                    data: cumulative,
+                    tension: 0.35,
+                    fill: false,
+                    borderColor: '#9333ea',
+                    backgroundColor: '#9333ea',
+                    pointRadius: 4,
+                    borderWidth: 3,
+                }];
+            } else {
+                datasets = [
+                    {
+                        label: 'Pagos Contados',
+                        data: contadoValues,
+                        backgroundColor: multiSeriesColors['Pagos Contados'].backgroundColor,
+                        borderColor: multiSeriesColors['Pagos Contados'].borderColor,
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Pagos Creditos',
+                        data: creditosValues,
+                        backgroundColor: multiSeriesColors['Pagos Creditos'].backgroundColor,
+                        borderColor: multiSeriesColors['Pagos Creditos'].borderColor,
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Inscripciones',
+                        data: inscripcionesValues,
+                        backgroundColor: multiSeriesColors['Inscripciones'].backgroundColor,
+                        borderColor: multiSeriesColors['Inscripciones'].borderColor,
+                        borderWidth: 1,
+                    }
+                ];
+            }
+        } else {
+            labels = dataset.map(item => item.period);
+            values = dataset.map(item => item.total);
+
+            if (chart === ojivaChart) {
+                const cumulative = values.reduce((acc, value) => {
+                    const next = acc.length ? acc[acc.length - 1] + value : value;
+                    acc.push(Number(next.toFixed(2)));
+                    return acc;
+                }, []);
+                datasets = [{
+                    label: `${metric}${labelSuffix}`,
+                    data: cumulative,
+                    tension: 0.35,
+                    fill: false,
+                    borderColor: '#9333ea',
+                    backgroundColor: '#9333ea',
+                    pointRadius: 4,
+                    borderWidth: 3,
+                }];
+            } else {
+                datasets = [{
+                    label: metric,
+                    data: values,
+                    backgroundColor: '#2563eb',
+                    borderColor: '#1d4ed8',
+                    borderWidth: 1,
+                }];
+            }
+        }
+
+        chart.data.labels = labels;
+        chart.data.datasets = datasets;
+        chart.update();
+    }
+
+    function refreshChartGroup(metricId, periodId, chart, labelSuffix = '') {
+        const metric = document.getElementById(metricId).value;
+        const period = document.getElementById(periodId).value;
+        updateChart(chart, metric, period, labelSuffix);
+    }
+
+    document.getElementById('barMetric').addEventListener('change', () => refreshChartGroup('barMetric', 'barPeriod', barChart));
+    document.getElementById('barPeriod').addEventListener('change', () => refreshChartGroup('barMetric', 'barPeriod', barChart));
+    document.getElementById('pieMetric').addEventListener('change', () => refreshChartGroup('pieMetric', 'piePeriod', pieChart));
+    document.getElementById('piePeriod').addEventListener('change', () => refreshChartGroup('pieMetric', 'piePeriod', pieChart));
+    document.getElementById('ojivaMetric').addEventListener('change', () => refreshChartGroup('ojivaMetric', 'ojivaPeriod', ojivaChart, ' acumulado'));
+    document.getElementById('ojivaPeriod').addEventListener('change', () => refreshChartGroup('ojivaMetric', 'ojivaPeriod', ojivaChart, ' acumulado'));
+
+    refreshChartGroup('barMetric', 'barPeriod', barChart);
+    refreshChartGroup('pieMetric', 'piePeriod', pieChart);
+    refreshChartGroup('ojivaMetric', 'ojivaPeriod', ojivaChart, ' acumulado');
 </script>
 
 @endsection

@@ -1,7 +1,9 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import axios from "axios";
 
 import { Link, router, usePage } from "@inertiajs/vue3";
+import NotificationModal from "./NotificationModal.vue";
 
 const page = usePage();
 
@@ -75,9 +77,52 @@ const cantidadMensajes = computed(() => {
     return Number(page.props.cantidad_mensajes ?? 0);
 });
 
+const notificaciones = ref(
+    Array.isArray(page.props.notificaciones) ? page.props.notificaciones : [],
+);
+
+watch(
+    () => page.props.notificaciones,
+    (value) => {
+        notificaciones.value = Array.isArray(value) ? value : [];
+    },
+);
+
 const cantidadNotificaciones = computed(() => {
-    return Number(page.props.cantidad_notificaciones ?? 0);
+    return notificaciones.value.length;
 });
+
+const marcarNotificacionComoLeida = async (notificacion) => {
+    if (!notificacion?.id) {
+        return;
+    }
+
+    try {
+        await axios.post(
+            `/alumno/notificaciones/${notificacion.id}/marcar-leida`,
+        );
+        notificaciones.value = notificaciones.value.filter(
+            (item) => item.id !== notificacion.id,
+        );
+        mostrarAviso("Notificación marcada como leída.");
+    } catch (error) {
+        console.error(error);
+        mostrarAviso("No se pudo marcar la notificación como leída.");
+    }
+};
+
+const verSeguimiento = async (notificacion) => {
+    if (!notificacion?.inscripcion_materia_id) {
+        mostrarAviso("No se encontró el seguimiento asociado.");
+        return;
+    }
+
+    await marcarNotificacionComoLeida(notificacion);
+    cerrarMenus();
+    router.visit(
+        `/alumno/materias-inscritas/${notificacion.inscripcion_materia_id}/seguimiento`,
+    );
+};
 
 const mostrarAviso = (mensaje) => {
     aviso.value = mensaje;
@@ -124,6 +169,11 @@ const irAMisPagos = () => {
 const irAMisCreditos = () => {
     cerrarMenus();
     router.visit("/alumno/mis-creditos");
+};
+
+const irAHorario = () => {
+    cerrarMenus();
+    router.visit("/alumno/horario");
 };
 
 const irAPerfil = () => {
@@ -429,65 +479,12 @@ onBeforeUnmount(() => {
                         </span>
                     </button>
 
-                    <!-- Panel notificaciones -->
-                    <Transition
-                        enter-active-class="transition duration-150"
-                        enter-from-class="-translate-y-2 opacity-0"
-                        enter-to-class="translate-y-0 opacity-100"
-                        leave-active-class="transition duration-100"
-                        leave-from-class="translate-y-0 opacity-100"
-                        leave-to-class="-translate-y-2 opacity-0"
-                    >
-                        <div
-                            v-if="panelAbierto === 'notificaciones'"
-                            class="absolute right-0 top-full mt-3 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-                        >
-                            <div class="border-b border-slate-100 px-4 py-3">
-                                <h3 class="text-sm font-black text-slate-900">
-                                    Notificaciones
-                                </h3>
-
-                                <p class="mt-0.5 text-xs text-slate-500">
-                                    Avisos académicos
-                                </p>
-                            </div>
-
-                            <div
-                                class="flex flex-col items-center px-5 py-8 text-center"
-                            >
-                                <div
-                                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600"
-                                >
-                                    <svg
-                                        class="h-6 w-6"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <path
-                                            d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
-                                        />
-
-                                        <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-                                    </svg>
-                                </div>
-
-                                <p
-                                    class="mt-4 text-sm font-bold text-slate-700"
-                                >
-                                    Sin notificaciones
-                                </p>
-
-                                <p
-                                    class="mt-1 text-xs leading-5 text-slate-500"
-                                >
-                                    La vista de notificaciones todavía no fue
-                                    creada.
-                                </p>
-                            </div>
-                        </div>
-                    </Transition>
+                    <NotificationModal
+                        :notificaciones="notificaciones"
+                        :panel-abierto="panelAbierto"
+                        @ver-seguimiento="verSeguimiento"
+                        @marcar-como-leida="marcarNotificacionComoLeida"
+                    />
                 </div>
 
                 <!-- Perfil -->
@@ -670,6 +667,28 @@ onBeforeUnmount(() => {
                                     </span>
 
                                     Mis Pagos
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="opcion-perfil"
+                                    @click="irAHorario"
+                                >
+                                    <span
+                                        class="icono-opcion bg-blue-50 text-blue-600"
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <circle cx="12" cy="12" r="9" />
+                                            <path d="M12 7v5l4 2" />
+                                        </svg>
+                                    </span>
+
+                                    Mi Horario
                                 </button>
 
                                 <button

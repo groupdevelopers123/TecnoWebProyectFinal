@@ -72,6 +72,10 @@ const materiasActivas = computed(() => {
     return page.url.startsWith("/docente/materias");
 });
 
+const horariosActivas = computed(() => {
+    return page.url.startsWith("/docente/horarios");
+});
+
 const mostrarAviso = (mensaje) => {
     aviso.value = mensaje;
 
@@ -110,6 +114,11 @@ const seleccionarSeccion = (seccion, nombreVisible) => {
         return;
     }
 
+    if (seccion === "mi-horario") {
+        irAMisHorarios();
+        return;
+    }
+
     mostrarAviso(`${nombreVisible}: la vista todavía no fue creada.`);
 };
 
@@ -121,6 +130,11 @@ const irACarreras = () => {
 const irAMaterias = () => {
     cerrarMenus();
     router.visit("/docente/materias");
+};
+
+const irAMisHorarios = () => {
+    cerrarMenus();
+    router.visit("/docente/horarios");
 };
 
 const irAPerfil = () => {
@@ -212,30 +226,6 @@ onBeforeUnmount(() => {
                 class="hidden flex-1 items-center justify-center gap-1 lg:flex"
             >
                 <Link
-                    href="/docente/carreras"
-                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition"
-                    :class="
-                        carrerasActivas
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'text-slate-500 hover:bg-slate-100 hover:text-blue-700'
-                    "
-                    @click="cerrarMenus"
-                >
-                    <svg
-                        class="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M22 10 12 5 2 10l10 5 10-5Z" />
-                        <path d="M6 12v5c3 2 9 2 12 0v-5" />
-                    </svg>
-
-                    Mis Carreras
-                </Link>
-
-                <Link
                     href="/docente/materias"
                     class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition"
                     :class="
@@ -259,6 +249,30 @@ onBeforeUnmount(() => {
                     </svg>
 
                     Mis Materias
+                </Link>
+
+                <Link
+                    href="/docente/horarios"
+                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition"
+                    :class="
+                        horariosActivas
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-blue-700'
+                    "
+                    @click="cerrarMenus"
+                >
+                    <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l4 2" />
+                    </svg>
+
+                    Mi Horario
                 </Link>
             </nav>
 
@@ -565,30 +579,6 @@ onBeforeUnmount(() => {
                                 </button>
 
                                 <Link
-                                    href="/docente/carreras"
-                                    class="opcion-perfil"
-                                    @click="cerrarMenus"
-                                >
-                                    <span
-                                        class="icono-opcion bg-violet-50 text-violet-600"
-                                    >
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path
-                                                d="M22 10 12 5 2 10l10 5 10-5Z"
-                                            />
-                                            <path d="M6 12v5c3 2 9 2 12 0v-5" />
-                                        </svg>
-                                    </span>
-
-                                    Mis Carreras
-                                </Link>
-
-                                <Link
                                     href="/docente/materias"
                                     class="opcion-perfil"
                                     @click="cerrarMenus"
@@ -744,6 +734,14 @@ onBeforeUnmount(() => {
                         @click="cerrarMenus"
                     >
                         Mis Materias
+                    </Link>
+
+                    <Link
+                        href="/docente/horarios"
+                        class="boton-movil"
+                        @click="cerrarMenus"
+                    >
+                        Mi Horario
                     </Link>
 
                     <Link

@@ -53,7 +53,41 @@ class HandleInertiaRequests extends Middleware
         ],
 
         'cantidad_mensajes' => 0,
-        'cantidad_notificaciones' => 0,
+        'cantidad_notificaciones' => $usuario ? $usuario->unreadNotifications()->count() : 0,
+        'notificaciones' => $usuario
+            ? $usuario->unreadNotifications()
+                ->latest()
+                ->take(5)
+                ->get()
+                ->map(fn ($notification) => [
+                    'id' => $notification->id,
+                    'titulo' => $notification->data['titulo'] ?? null,
+                    'mensaje' => $notification->data['mensaje'] ?? null,
+                    'descripcion' => $notification->data['descripcion'] ?? null,
+                    'tipo' => $notification->data['tipo'] ?? null,
+                    'materia_id' => $notification->data['materia_id'] ?? null,
+                    'materia_nombre' => $notification->data['materia_nombre'] ?? null,
+                    'inscripcion_materia_id' => $notification->data['inscripcion_materia_id'] ?? null,
+                    'seguimiento_id' => $notification->data['seguimiento_id'] ?? null,
+                    'fecha' => $notification->data['fecha'] ?? optional($notification->created_at)->format('Y-m-d H:i:s'),
+                    'read_at' => $notification->read_at,
+                ])
+            : [],
+        'notificaciones_count' => $usuario ? $usuario->unreadNotifications()->count() : 0,
+        'avisos' => $usuario
+            ? $usuario->unreadNotifications()
+                ->latest()
+                ->take(3)
+                ->get()
+                ->map(fn ($notification) => [
+                    'id' => $notification->id,
+                    'titulo' => $notification->data['titulo'] ?? null,
+                    'mensaje' => $notification->data['mensaje'] ?? null,
+                    'descripcion' => $notification->data['descripcion'] ?? null,
+                    'tipo' => $notification->data['tipo'] ?? null,
+                    'fecha' => $notification->data['fecha'] ?? optional($notification->created_at)->format('Y-m-d H:i:s'),
+                ])
+            : [],
     ];
 }
 }

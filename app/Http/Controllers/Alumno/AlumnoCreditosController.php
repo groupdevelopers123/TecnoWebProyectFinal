@@ -334,7 +334,7 @@ class AlumnoCreditosController extends Controller
 
         return response()->json([
             'ok' => true,
-            'cuota' => [
+            'pago' => [
                 'id' => $pagoCuota->id,
                 'estado' => $pagoCuota->estado_cuota,
                 'fecha_confirmacion' => $pagoCuota->fecha_confirmacion?->format('Y-m-d H:i:s'),
@@ -366,7 +366,7 @@ class AlumnoCreditosController extends Controller
             return response()->json([
                 'ok' => true,
                 'message' => 'Consulta manual realizada correctamente.',
-                'cuota' => [
+                'pago' => [
                     'id' => $pagoCuota->id,
                     'estado' => $pagoCuota->estado_cuota,
                     'fecha_confirmacion' => $pagoCuota->fecha_confirmacion?->format('Y-m-d H:i:s'),

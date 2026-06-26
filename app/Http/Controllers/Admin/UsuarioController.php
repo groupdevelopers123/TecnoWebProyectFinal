@@ -38,6 +38,30 @@ class UsuarioController extends Controller
 
         $roles = Role::where('estado', true)->orderBy('nombre')->get();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $usuarios->getCollection()->map(function ($usuario) {
+                    return [
+                        'id' => $usuario->id,
+                        'ci' => $usuario->ci,
+                        'nombres' => $usuario->nombres,
+                        'apellidos' => $usuario->apellidos,
+                        'email' => $usuario->email,
+                        'role' => $usuario->role?->nombre,
+                        'estado' => (bool) $usuario->estado,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $usuarios->currentPage(),
+                    'last_page' => $usuarios->lastPage(),
+                    'per_page' => $usuarios->perPage(),
+                    'total' => $usuarios->total(),
+                    'prev_page_url' => $usuarios->previousPageUrl(),
+                    'next_page_url' => $usuarios->nextPageUrl(),
+                ],
+            ]);
+        }
+
         return view('admin.usuarios.index', compact('usuarios', 'roles'));
     }
 

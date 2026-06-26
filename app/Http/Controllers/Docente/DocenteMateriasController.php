@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Materia;
 use App\Models\InscripcionMateria;
 use App\Models\SeguimientoAcademico;
+use App\Notifications\SeguimientoAcademicoActualizado;
+use App\Notifications\SeguimientoAcademicoRegistrado;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +33,40 @@ class DocenteMateriasController extends Controller
                 'estado' => $materia->estado,
                 'carreras' => $materia->carreraMaterias->map(fn($cm) => $cm->carrera->nombre)->unique()->values(),
             ]),
+        ]);
+    }
+
+    public function horarios(): Response
+    {
+        $usuario = auth()->user();
+        $docenteDetalle = $usuario->docenteDetalle;
+
+        $horarios = $docenteDetalle
+            ? $docenteDetalle
+                ->horarios()
+                ->with(['carreraMateria.materia', 'carreraMateria.carrera', 'aula'])
+                ->get()
+            : collect();
+
+        $horariosAgrupados = $horarios
+            ->groupBy(fn ($horario) => $horario->carreraMateria->materia->id)
+            ->map(fn ($grupo) => [
+                'materia_id' => $grupo->first()->carreraMateria->materia->id,
+                'codigo' => $grupo->first()->carreraMateria->materia->codigo,
+                'nombre' => $grupo->first()->carreraMateria->materia->nombre,
+                'carreras' => $grupo->pluck('carreraMateria.carrera.nombre')->unique()->values(),
+                'horarios' => $grupo->map(fn ($horario) => [
+                    'dia' => $horario->dia,
+                    'hora_inicio' => substr($horario->hora_inicio, 0, 5),
+                    'hora_fin' => substr($horario->hora_fin, 0, 5),
+                    'aula' => $horario->aula?->nombre ?? 'Sin aula',
+                    'estado' => $horario->estado ? 'Activo' : 'Inactivo',
+                ])->values(),
+            ])
+            ->values();
+
+        return Inertia::render('docente/horarios', [
+            'horarios' => $horariosAgrupados,
         ]);
     }
 
@@ -88,6 +124,11 @@ class DocenteMateriasController extends Controller
             'fecha_registro' => $validated['fecha_registro'],
         ]);
 
+        $alumno = $seguimiento->inscripcionMateria->inscripcion->alumnoDetalle->user;
+        if ($alumno) {
+            $alumno->notify(new SeguimientoAcademicoRegistrado($seguimiento));
+        }
+
         return response()->json([
             'message' => 'Registro del seguimiento exitoso',
             'seguimiento' => $seguimiento,
@@ -126,6 +167,11 @@ class DocenteMateriasController extends Controller
             'estado_academico' => $validated['estado_academico'],
             'fecha_registro' => $validated['fecha_registro'],
         ]);
+
+        $alumno = $seguimiento->inscripcionMateria->inscripcion->alumnoDetalle->user;
+        if ($alumno) {
+            $alumno->notify(new SeguimientoAcademicoActualizado($seguimiento));
+        }
 
         return response()->json([
             'message' => 'Actualización del seguimiento exitosa',

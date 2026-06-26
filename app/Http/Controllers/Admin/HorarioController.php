@@ -35,6 +35,33 @@ class HorarioController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => $horarios->getCollection()->map(function ($horario) {
+                    return [
+                        'id' => $horario->id,
+                        'dia' => $horario->dia,
+                        'turno' => $horario->turno,
+                        'aula_codigo' => $horario->aula?->codigo,
+                        'aula_nombre' => $horario->aula?->nombre,
+                        'carrera_nombre' => $horario->carreraMateria?->carrera?->nombre,
+                        'materia_nombre' => $horario->carreraMateria?->materia?->nombre,
+                        'periodo_nombre' => $horario->periodoAcademico?->nombre,
+                        'docente_nombre' => $horario->docenteDetalle?->user ? trim($horario->docenteDetalle->user->nombres.' '.$horario->docenteDetalle->user->apellidos) : null,
+                        'estado' => (bool) $horario->estado,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $horarios->currentPage(),
+                    'last_page' => $horarios->lastPage(),
+                    'per_page' => $horarios->perPage(),
+                    'total' => $horarios->total(),
+                    'prev_page_url' => $horarios->previousPageUrl(),
+                    'next_page_url' => $horarios->nextPageUrl(),
+                ],
+            ]);
+        }
+
         return view('admin.horarios.index', compact('horarios'));
     }
 

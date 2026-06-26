@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CarreraMateria;
 use App\Models\Inscripcion;
 use App\Models\InscripcionMateria;
+use App\Notifications\MateriaInscrita;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -85,11 +86,16 @@ class InscripcionMateriaController extends Controller
                 ->withInput();
         }
 
-        InscripcionMateria::create([
+        $inscripcionMateria = InscripcionMateria::create([
             'inscripcion_id' => $inscripcion->id,
             'carrera_materia_id' => $data['carrera_materia_id'],
             'estado' => $data['estado'],
         ]);
+
+        $alumno = $inscripcion->alumnoDetalle->user;
+        if ($alumno) {
+            $alumno->notify(new MateriaInscrita($inscripcionMateria));
+        }
 
         return redirect()
             ->route('admin.inscripciones.materias.index', $inscripcion)

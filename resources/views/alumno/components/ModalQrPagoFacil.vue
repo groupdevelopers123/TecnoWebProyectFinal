@@ -136,9 +136,12 @@ const verificarEstado = async (mostrarCarga = true) => {
             return;
         }
 
-        estadoPago.value = data.pago?.estado ?? estadoPago.value;
+        const estado =
+            data.pago?.estado ?? data.cuota?.estado ?? estadoPago.value;
 
-        if (esEstadoConfirmado(data.pago?.estado)) {
+        estadoPago.value = estado;
+
+        if (esEstadoConfirmado(estado)) {
             mostrarExito();
             return;
         }
@@ -184,9 +187,12 @@ const verificarManual = async () => {
             throw new Error(data.message || "No se pudo consultar el pago.");
         }
 
-        estadoPago.value = data.pago?.estado ?? estadoPago.value;
+        const estado =
+            data.pago?.estado ?? data.cuota?.estado ?? estadoPago.value;
 
-        if (esEstadoConfirmado(data.pago?.estado)) {
+        estadoPago.value = estado;
+
+        if (esEstadoConfirmado(estado)) {
             mostrarExito();
             return;
         }
