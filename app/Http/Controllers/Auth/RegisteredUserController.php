@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -78,46 +79,56 @@ class RegisteredUserController extends Controller
             'password.symbols' => 'La contraseña debe incluir al menos un símbolo.',
             'oferta_academica_id.exists' => 'La oferta académica seleccionada no existe.',
         ]);
-        $user = DB::transaction(function () use ($request) {
-            $rolAlumno = Role::where('nombre', 'alumno')->first();
+        try {
+            $user = DB::transaction(function () use ($request) {
+                $rolAlumno = Role::where('nombre', 'alumno')->first();
 
-            if (! $rolAlumno) {
-                $rolAlumno = Role::create([
-                    'nombre' => 'alumno',
-                    'descripcion' => 'Usuario alumno registrado desde la página pública',
-                    'estado' => 'Activo',
+                if (! $rolAlumno) {
+                    $rolAlumno = Role::create([
+                        'nombre' => 'alumno',
+                        'descripcion' => 'Usuario alumno registrado desde la página pública',
+                        'estado' => true,
+                    ]);
+                }
+
+                $user = User::create([
+                    'role_id' => $rolAlumno->id,
+                    'nombres' => $request->nombres,
+                    'apellidos' => $request->apellidos,
+                    'ci' => $request->ci,
+                    'email' => $request->email,
+                    'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
+                    'fecha_nacimiento' => $request->fecha_nacimiento,
+                    'password' => Hash::make($request->password),
+                    'estado' => $this->normalizarEstadoBoolean(true),
                 ]);
+
+                AlumnoDetalle::create([
+                    'user_id' => $user->id,
+                    'codigo' => $this->generarCodigoAlumno($user),
+                    'colegio_origen' => $request->colegio_origen,
+                    'anio_bachillerato' => $request->anio_bachillerato,
+                    'estado_academico' => $request->estado_academico ?: 'nuevo',
+                ]);
+
+                if ($request->filled('oferta_academica_id')) {
+                    session([
+                        'oferta_academica_id' => $request->oferta_academica_id,
+                    ]);
+                }
+
+                return $user;
+            });
+        } catch (QueryException $exception) {
+            if (($exception->errorInfo[0] ?? '') === '23505') {
+                return back()
+                    ->withInput()
+                    ->with('error', 'No se pudo completar el registro: el código de alumno generado ya existe. Intenta de nuevo.');
             }
 
-            $user = User::create([
-                'role_id' => $rolAlumno->id,
-                'nombres' => $request->nombres,
-                'apellidos' => $request->apellidos,
-                'ci' => $request->ci,
-                'email' => $request->email,
-                'telefono' => $request->telefono,
-                'direccion' => $request->direccion,
-                'fecha_nacimiento' => $request->fecha_nacimiento,
-                'password' => Hash::make($request->password),
-                'estado' => 'activo',
-            ]);
-
-            AlumnoDetalle::create([
-                'user_id' => $user->id,
-                'codigo' => $this->generarCodigoAlumno($user),
-                'colegio_origen' => $request->colegio_origen,
-                'anio_bachillerato' => $request->anio_bachillerato,
-                'estado_academico' => $request->estado_academico ?: 'nuevo',
-            ]);
-
-            if ($request->filled('oferta_academica_id')) {
-                session([
-                    'oferta_academica_id' => $request->oferta_academica_id,
-                ]);
-            }
-
-            return $user;
-        });
+            throw $exception;
+        }
 
         event(new Registered($user));
 
@@ -130,7 +141,7 @@ class RegisteredUserController extends Controller
         }
 
         return redirect()
-            ->route('public.inicio')
+            ->route('alumno.home')
             ->with('info', 'Registro completado correctamente.');
     }
 
@@ -141,5 +152,10 @@ class RegisteredUserController extends Controller
         $numero = str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
 
         return 'ALU-' . $anio . '-' . $numero;
+    }
+
+    private function normalizarEstadoBoolean(bool $estado): bool
+    {
+        return $estado;
     }
 }

@@ -19,11 +19,14 @@ const visits = ref(0);
 const loading = ref(true);
 const error = ref(false);
 
-const badgeClasses = computed(() =>
-    props.compact
-        ? "inline-flex items-center justify-center rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-slate-900 shadow-sm"
-        : "inline-flex items-center justify-center rounded-full bg-white/90 px-3 py-1 text-base font-semibold text-slate-900 shadow-sm",
-);
+const badgeClasses = computed(() => {
+    const shared =
+        "inline-flex items-center justify-center rounded-full border px-3 py-1 font-semibold shadow-sm";
+
+    return props.compact
+        ? `${shared} border-[var(--border-primary)] bg-[var(--surface-primary)] text-[var(--text-primary)] text-sm`
+        : `${shared} border-[var(--border-primary)] bg-[var(--surface-primary)] text-[var(--text-primary)] text-base`;
+});
 
 const displayCount = computed(() => {
     if (loading.value) {

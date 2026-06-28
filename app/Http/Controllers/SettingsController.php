@@ -13,6 +13,12 @@ class SettingsController extends Controller
     {
         $user = $request->user();
 
+        if ($user->esAdministrativo()) {
+            return view('admin.settings', [
+                'preferences' => $user->preferences ?? [],
+            ]);
+        }
+
         return Inertia::render('settings', [
             'preferences' => $user->preferences ?? null,
         ]);
@@ -25,7 +31,9 @@ class SettingsController extends Controller
         $data = $request->validated();
 
         $preferences = $user->preferences ?? [];
-        $preferences['theme'] = $data['theme'] ?? ($preferences['theme'] ?? 'adultos');
+        $preferences['theme'] = array_key_exists('theme', $data)
+            ? ($data['theme'] !== null && $data['theme'] !== '' ? $data['theme'] : null)
+            : ($preferences['theme'] ?? null);
         $preferences['mode'] = $data['mode'] ?? ($preferences['mode'] ?? 'light');
         $preferences['font_size'] = $data['font_size'] ?? ($preferences['font_size'] ?? 16);
         $preferences['contrast'] = $data['contrast'] ?? ($preferences['contrast'] ?? 'normal');

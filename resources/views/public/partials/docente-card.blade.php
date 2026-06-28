@@ -16,15 +16,7 @@
         </p>
 
         <div class="mt-4 space-y-2 text-sm text-slate-500">
-            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left">
-                <span class="font-bold text-slate-500">Grado</span>
-                <span class="font-black text-slate-800">{{ $docente->grado_academico ?? '-' }}</span>
-            </div>
-
-            <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left">
-                <span class="font-bold text-slate-500">Experiencia</span>
-                <span class="font-black text-slate-800">{{ $docente->experiencia ?? '-' }}</span>
-            </div>
+            
 
             @if (isset($docente->estado))
                 <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left">

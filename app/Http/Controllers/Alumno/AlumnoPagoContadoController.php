@@ -46,6 +46,7 @@ class AlumnoPagoContadoController extends Controller
                         'periodo' => $inscripcion->ofertaAcademica?->periodoAcademico?->nombre,
                         'gestion' => $inscripcion->ofertaAcademica?->periodoAcademico?->gestion,
                         'precio_mensualidad' => (float) ($inscripcion->ofertaAcademica?->precio_mensualidad ?? 0),
+                        'precio_carrera_completa' => (float) ($inscripcion->ofertaAcademica?->precio_carrera_completa ?? 0),
                         'fecha_inscripcion' => $inscripcion->fecha_inscripcion?->format('Y-m-d'),
                     ];
                 })
@@ -65,6 +66,7 @@ class AlumnoPagoContadoController extends Controller
                     'id' => $concepto->id,
                     'nombre' => $concepto->nombre,
                     'descripcion' => $concepto->descripcion,
+                    'es_mensualidad' => str_contains(strtolower($concepto->nombre), 'mensualidad'),
                 ];
             })
             ->values();
@@ -187,18 +189,38 @@ class AlumnoPagoContadoController extends Controller
             ]);
         }
 
-        $montoMensualidad = (float) ($inscripcion->ofertaAcademica?->precio_mensualidad ?? 0);
+        $esMensualidad = str_contains(strtolower($concepto->nombre), 'mensualidad');
+        $esCarreraCompleta = str_contains(strtolower($concepto->nombre), 'carrera completa') ||
+            (str_contains(strtolower($concepto->nombre), 'carrera') &&
+                str_contains(strtolower($concepto->nombre), 'completo'));
 
-        if ($montoMensualidad <= 0) {
-            throw ValidationException::withMessages([
-                'monto_pagado' => 'La oferta académica seleccionada no tiene precio de mensualidad configurado.',
-            ]);
+        $montoMensualidad = (float) ($inscripcion->ofertaAcademica?->precio_mensualidad ?? 0);
+        $montoCarreraCompleta = (float) ($inscripcion->ofertaAcademica?->precio_carrera_completa ?? 0);
+
+        if ($esMensualidad) {
+            if ($montoMensualidad <= 0) {
+                throw ValidationException::withMessages([
+                    'monto_pagado' => 'La oferta académica seleccionada no tiene precio de mensualidad configurado.',
+                ]);
+            }
+
+            $montoPagado = $montoMensualidad;
+        } elseif ($esCarreraCompleta) {
+            if ($montoCarreraCompleta <= 0) {
+                throw ValidationException::withMessages([
+                    'monto_pagado' => 'La oferta académica seleccionada no tiene precio de carrera completa configurado.',
+                ]);
+            }
+
+            $montoPagado = $montoCarreraCompleta;
+        } else {
+            $montoPagado = (float) $datos['monto_pagado'];
         }
 
         $pago = PagoContado::create([
             'inscripcion_id' => $inscripcion->id,
             'concepto_pago_id' => $concepto->id,
-            'monto_pagado' => $montoMensualidad,
+            'monto_pagado' => $montoPagado,
             'fecha_pago' => $datos['fecha_pago'],
             'metodo_pago' => $datos['metodo_pago'],
             'estado' => 'Pendiente',
@@ -242,6 +264,11 @@ class AlumnoPagoContadoController extends Controller
                 'required',
                 'integer',
                 'exists:concepto_pagos,id',
+            ],
+            'monto_pagado' => [
+                'required',
+                'numeric',
+                'min:0.01',
             ],
             'fecha_pago' => [
                 'required',
@@ -289,19 +316,40 @@ class AlumnoPagoContadoController extends Controller
             ], 422);
         }
 
-        $montoMensualidad = (float) ($inscripcion->ofertaAcademica?->precio_mensualidad ?? 0);
+        $esMensualidad = str_contains(strtolower($concepto->nombre), 'mensualidad');
+        $esCarreraCompleta = str_contains(strtolower($concepto->nombre), 'carrera completa') ||
+            (str_contains(strtolower($concepto->nombre), 'carrera') &&
+                str_contains(strtolower($concepto->nombre), 'completo'));
 
-        if ($montoMensualidad <= 0) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'La oferta académica seleccionada no tiene precio de mensualidad configurado.',
-            ], 422);
+        $montoMensualidad = (float) ($inscripcion->ofertaAcademica?->precio_mensualidad ?? 0);
+        $montoCarreraCompleta = (float) ($inscripcion->ofertaAcademica?->precio_carrera_completa ?? 0);
+
+        if ($esMensualidad) {
+            if ($montoMensualidad <= 0) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'La oferta académica seleccionada no tiene precio de mensualidad configurado.',
+                ], 422);
+            }
+
+            $montoPagado = $montoMensualidad;
+        } elseif ($esCarreraCompleta) {
+            if ($montoCarreraCompleta <= 0) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'La oferta académica seleccionada no tiene precio de carrera completa configurado.',
+                ], 422);
+            }
+
+            $montoPagado = $montoCarreraCompleta;
+        } else {
+            $montoPagado = (float) $datos['monto_pagado'];
         }
 
         $pago = PagoContado::create([
             'inscripcion_id' => $inscripcion->id,
             'concepto_pago_id' => $concepto->id,
-            'monto_pagado' => $montoMensualidad,
+            'monto_pagado' => $montoPagado,
             'fecha_pago' => $datos['fecha_pago'],
             'metodo_pago' => 'QR',
             'estado' => 'Pendiente',

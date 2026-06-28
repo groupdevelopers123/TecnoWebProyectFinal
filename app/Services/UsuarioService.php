@@ -22,7 +22,7 @@ class UsuarioService
                 'direccion' => $data['direccion'] ?? null,
                 'fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
                 'password' => Hash::make($data['password']),
-                'estado' => $data['estado'],
+                'estado' => $this->normalizarEstado($data['estado'] ?? true),
             ]);
 
             $this->guardarDetallePorRol($usuario, $data);
@@ -43,7 +43,7 @@ class UsuarioService
                 'telefono' => $data['telefono'] ?? null,
                 'direccion' => $data['direccion'] ?? null,
                 'fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
-                'estado' => $data['estado'],
+                'estado' => $this->normalizarEstado($data['estado'] ?? true),
             ]);
 
             if (! empty($data['password'])) {
@@ -64,6 +64,31 @@ class UsuarioService
         $usuario->update([
             'estado' => ! $usuario->estado,
         ]);
+    }
+
+    private function normalizarEstado(mixed $estado): bool
+    {
+        if (is_bool($estado)) {
+            return $estado;
+        }
+
+        if (is_int($estado)) {
+            return $estado === 1;
+        }
+
+        if (is_string($estado)) {
+            $valor = mb_strtolower(trim($estado));
+
+            if (in_array($valor, ['1', 'true', 'activo', 'si', 'sí', 'yes', 'on'], true)) {
+                return true;
+            }
+
+            if (in_array($valor, ['0', 'false', 'inactivo', 'no', 'off'], true)) {
+                return false;
+            }
+        }
+
+        return (bool) $estado;
     }
 
     private function guardarDetallePorRol(User $usuario, array $data): void

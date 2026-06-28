@@ -12,6 +12,13 @@ class SettingsUpdateRequest extends FormRequest
         return $this->user() != null;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'theme' => $this->input('theme') === '' ? null : $this->input('theme'),
+        ]);
+    }
+
     public function rules(): array
     {
         return [

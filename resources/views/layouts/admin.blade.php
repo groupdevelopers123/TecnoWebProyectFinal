@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <title>@yield('title', 'Panel Administrativo')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        window.ADMIN_PREFERENCES = @json(auth()->user()?->preferences ?? []);
+        window.ADMIN_USER_ID = @json(auth()->id());
+    </script>
+
+    @vite(['resources/css/app.css', 'resources/css/inertia.css', 'resources/js/app.js'])
 </head>
 
 <body class="min-h-screen bg-slate-100 text-slate-800">
@@ -39,53 +45,21 @@
             </a>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-usuarios"
-                    aria-expanded="{{ request()->routeIs('admin.usuarios.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-users w-5 text-center"></i>
-                        Usuarios
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-usuarios" class="space-y-2 pl-6 {{ request()->routeIs('admin.usuarios.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.usuarios.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.usuarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-user w-5 text-center"></i>
-                        <span>Usuarios</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.usuarios.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.usuarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-users w-5 text-center"></i>
+                    <span>Usuarios</span>
+                </a>
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-aulas"
-                    aria-expanded="{{ request()->routeIs('admin.aulas.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-school w-5 text-center"></i>
-                        Aulas
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-aulas" class="space-y-2 pl-6 {{ request()->routeIs('admin.aulas.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.aulas.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.aulas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-door-open w-5 text-center"></i>
-                        <span>Aulas</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.aulas.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.aulas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-school w-5 text-center"></i>
+                    <span>Aulas</span>
+                </a>
             </div>
 
             <div class="space-y-2">
@@ -135,128 +109,48 @@
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-ofertas"
-                    aria-expanded="{{ request()->routeIs('admin.ofertas-academicas.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-bookmark w-5 text-center"></i>
-                        Ofertas académicas
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-ofertas" class="space-y-2 pl-6 {{ request()->routeIs('admin.ofertas-academicas.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.ofertas-academicas.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.ofertas-academicas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-bookmark w-5 text-center"></i>
-                        <span>Ofertas académicas</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.ofertas-academicas.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.ofertas-academicas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-bookmark w-5 text-center"></i>
+                    <span>Ofertas académicas</span>
+                </a>
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-inscripciones"
-                    aria-expanded="{{ request()->routeIs('admin.inscripciones.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
-                        Inscripciones
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-inscripciones" class="space-y-2 pl-6 {{ request()->routeIs('admin.inscripciones.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.inscripciones.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.inscripciones.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
-                        <span>Inscripciones</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.inscripciones.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.inscripciones.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
+                    <span>Inscripciones</span>
+                </a>
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-seguimiento"
-                    aria-expanded="{{ request()->routeIs('admin.seguimientos-academicos.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                        Seguimiento académico
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-seguimiento" class="space-y-2 pl-6 {{ request()->routeIs('admin.seguimientos-academicos.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.seguimientos-academicos.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.seguimientos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                        <span>Seguimiento</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.seguimientos-academicos.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.seguimientos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>Seguimiento académico</span>
+                </a>
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-pagos"
-                    aria-expanded="{{ request()->routeIs('admin.pago-contados.*') || request()->routeIs('admin.concepto-pagos.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-                        Pagos
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-pagos" class="space-y-2 pl-6 {{ request()->routeIs('admin.pago-contados.*') || request()->routeIs('admin.concepto-pagos.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.pago-contados.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.pago-contados.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-                        <span>Pagos</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.pago-contados.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.pago-contados.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+                    <span>Pagos</span>
+                </a>
             </div>
 
             <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-reportes"
-                    aria-expanded="{{ request()->routeIs('admin.reportes.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                        Reportes
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-reportes" class="space-y-2 pl-6 {{ request()->routeIs('admin.reportes.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.reportes.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.reportes.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                        <span>Reportes</span>
-                    </a>
-                </div>
+                <a href="{{ route('admin.reportes.index') }}"
+                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                   {{ request()->routeIs('admin.reportes.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Reportes</span>
+                </a>
             </div>
 
             <div class="space-y-2">
@@ -315,6 +209,13 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div class="mb-5 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 shadow-sm">
                     <div class="flex items-center gap-2 font-bold">
@@ -359,6 +260,10 @@
         });
     });
 </script>
+@if (request()->routeIs('admin.*.index'))
+    @include('admin.partials.page-visit-counter')
+@endif
+
 @stack('scripts')
 </body>
 </html>

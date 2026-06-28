@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateUsuarioRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\UsuarioService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
@@ -74,7 +75,17 @@ class UsuarioController extends Controller
 
     public function store(StoreUsuarioRequest $request)
     {
-        $this->usuarioService->crear($request->validated());
+        try {
+            $this->usuarioService->crear($request->validated());
+        } catch (QueryException $exception) {
+            if (($exception->errorInfo[0] ?? '') === '23505') {
+                return back()
+                    ->withInput()
+                    ->with('error', 'No se pudo registrar el usuario: el código ya existe. Verifique el valor e intente de nuevo.');
+            }
+
+            throw $exception;
+        }
 
         return redirect()
             ->route('admin.usuarios.index')
@@ -111,7 +122,17 @@ class UsuarioController extends Controller
 
     public function update(UpdateUsuarioRequest $request, User $usuario)
     {
-        $this->usuarioService->actualizar($usuario, $request->validated());
+        try {
+            $this->usuarioService->actualizar($usuario, $request->validated());
+        } catch (QueryException $exception) {
+            if (($exception->errorInfo[0] ?? '') === '23505') {
+                return back()
+                    ->withInput()
+                    ->with('error', 'No se pudo actualizar el usuario: el código ya existe. Verifique el valor e intente de nuevo.');
+            }
+
+            throw $exception;
+        }
 
         return redirect()
             ->route('admin.usuarios.index')

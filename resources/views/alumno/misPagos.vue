@@ -447,28 +447,87 @@ onBeforeUnmount(() => {
 
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-2">
-                                            <Link
-                                                v-if="pago.qr_url"
-                                                :href="pago.qr_url"
-                                                target="_blank"
-                                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 transition hover:-translate-y-0.5 hover:bg-blue-100"
-                                                title="Ver QR"
+                                            <span
+                                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-sm font-black transition"
+                                                :class="{
+                                                    'bg-emerald-50 text-emerald-700':
+                                                        pago.metodo_pago ===
+                                                        'Efectivo',
+                                                    'bg-violet-50 text-violet-700':
+                                                        pago.metodo_pago ===
+                                                        'Transferencia',
+                                                    'bg-blue-50 text-blue-700':
+                                                        pago.metodo_pago ===
+                                                        'QR',
+                                                }"
+                                                :title="`Método: ${pago.metodo_pago}`"
                                             >
-                                                <svg
-                                                    class="h-4 w-4"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
+                                                <template
+                                                    v-if="
+                                                        pago.metodo_pago ===
+                                                        'Efectivo'
+                                                    "
                                                 >
-                                                    <path
-                                                        d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"
-                                                    />
-                                                    <path
-                                                        d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"
-                                                    />
-                                                </svg>
-                                            </Link>
+                                                    <svg
+                                                        class="h-4 w-4"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path
+                                                            d="M4 7h16v10H4z"
+                                                        />
+                                                        <path d="M7 10h10" />
+                                                        <path d="M7 14h10" />
+                                                    </svg>
+                                                </template>
+
+                                                <template
+                                                    v-else-if="
+                                                        pago.metodo_pago ===
+                                                        'Transferencia'
+                                                    "
+                                                >
+                                                    <svg
+                                                        class="h-4 w-4"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path d="M4 7h16" />
+                                                        <path d="M4 17h16" />
+                                                        <path
+                                                            d="M7 4l-3 3 3 3"
+                                                        />
+                                                        <path
+                                                            d="M17 20l3-3-3-3"
+                                                        />
+                                                    </svg>
+                                                </template>
+
+                                                <template v-else>
+                                                    <svg
+                                                        class="h-4 w-4"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <rect
+                                                            x="4"
+                                                            y="4"
+                                                            width="16"
+                                                            height="16"
+                                                            rx="2"
+                                                        />
+                                                        <path
+                                                            d="M8 8h2v2H8zM14 8h2v2h-2zM8 14h2v2H8zM14 14h2v2h-2z"
+                                                        />
+                                                    </svg>
+                                                </template>
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>

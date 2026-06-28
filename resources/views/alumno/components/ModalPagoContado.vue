@@ -62,18 +62,69 @@ const montoMensualidad = computed(() => {
     return Number(inscripcionSeleccionada.value?.precio_mensualidad ?? 0);
 });
 
+const montoCarreraCompleta = computed(() => {
+    return Number(inscripcionSeleccionada.value?.precio_carrera_completa ?? 0);
+});
+
+const conceptoSeleccionado = computed(() => {
+    return (
+        props.conceptos.find(
+            (concepto) =>
+                Number(concepto.id) === Number(formulario.concepto_pago_id),
+        ) ?? null
+    );
+});
+
+const nombreConcepto = computed(() =>
+    String(conceptoSeleccionado.value?.nombre ?? "").toLowerCase(),
+);
+
+const esMensualidad = computed(() =>
+    nombreConcepto.value.includes("mensualidad"),
+);
+const esCarreraCompleta = computed(
+    () =>
+        nombreConcepto.value.includes("carrera completa") ||
+        (nombreConcepto.value.includes("carrera") &&
+            nombreConcepto.value.includes("completo")),
+);
+
+const esMontoFijo = computed(
+    () => esMensualidad.value || esCarreraCompleta.value,
+);
+
+const montoPorConcepto = computed(() => {
+    if (esMensualidad.value) {
+        return montoMensualidad.value;
+    }
+
+    if (esCarreraCompleta.value) {
+        return montoCarreraCompleta.value;
+    }
+
+    return 0;
+});
+
 const montoFormateado = computed(() => {
-    if (!montoMensualidad.value) {
+    if (!montoPorConcepto.value) {
         return "";
     }
 
-    return `Bs ${montoMensualidad.value.toLocaleString("es-BO", {
+    return `Bs ${montoPorConcepto.value.toLocaleString("es-BO", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })}`;
 });
 
-const tieneMensualidad = computed(() => montoMensualidad.value > 0);
+const tieneMontoFijo = computed(() => montoPorConcepto.value > 0);
+
+const puedeEnviar = computed(() => {
+    if (esMontoFijo.value) {
+        return tieneMontoFijo.value;
+    }
+
+    return Number(formulario.monto_pagado) > 0;
+});
 
 const prepararFormulario = () => {
     formulario.reset();
@@ -102,11 +153,17 @@ watch(
 );
 
 watch(
-    () => [formulario.inscripcion_id, props.inscripciones],
+    () => [
+        formulario.inscripcion_id,
+        formulario.concepto_pago_id,
+        props.inscripciones,
+    ],
     () => {
-        formulario.monto_pagado = tieneMensualidad.value
-            ? montoMensualidad.value.toFixed(2)
-            : "";
+        if (esMontoFijo.value) {
+            formulario.monto_pagado = tieneMontoFijo.value
+                ? montoPorConcepto.value.toFixed(2)
+                : "";
+        }
     },
     { deep: true },
 );
@@ -124,15 +181,18 @@ const cerrarModal = () => {
 };
 
 const registrarPagoNormal = () => {
-    if (!tieneMensualidad.value) {
+    if (esMontoFijo.value && !tieneMontoFijo.value) {
         tipoEstado.value = "error";
-        mensajeEstado.value =
-            "La inscripción seleccionada no tiene precio de mensualidad configurado.";
+        mensajeEstado.value = esMensualidad.value
+            ? "La inscripción seleccionada no tiene precio de mensualidad configurado."
+            : "La inscripción seleccionada no tiene precio de carrera completa configurado.";
 
         return;
     }
 
-    formulario.monto_pagado = montoMensualidad.value.toFixed(2);
+    if (esMontoFijo.value) {
+        formulario.monto_pagado = montoPorConcepto.value.toFixed(2);
+    }
 
     formulario.post("/alumno/mis-pagos", {
         preserveScroll: true,
@@ -154,19 +214,22 @@ const generarQr = async () => {
         return;
     }
 
-    if (!tieneMensualidad.value) {
+    if (esMontoFijo.value && !tieneMontoFijo.value) {
         tipoEstado.value = "error";
-        mensajeEstado.value =
-            "La inscripción seleccionada no tiene precio de mensualidad configurado.";
+        mensajeEstado.value = esMensualidad.value
+            ? "La inscripción seleccionada no tiene precio de mensualidad configurado."
+            : "La inscripción seleccionada no tiene precio de carrera completa configurado.";
 
         return;
+    }
+
+    if (esMontoFijo.value) {
+        formulario.monto_pagado = montoPorConcepto.value.toFixed(2);
     }
 
     procesandoQr.value = true;
     mensajeEstado.value = "";
     tipoEstado.value = "info";
-
-    formulario.monto_pagado = montoMensualidad.value.toFixed(2);
 
     try {
         const formData = new FormData();
@@ -179,12 +242,19 @@ const generarQr = async () => {
             "concepto_pago_id",
             String(formulario.concepto_pago_id ?? ""),
         );
-        formData.append("monto_pagado", montoMensualidad.value.toFixed(2));
         formData.append("fecha_pago", String(formulario.fecha_pago ?? ""));
         formData.append("metodo_pago", String(formulario.metodo_pago ?? ""));
         formData.append(
             "correo_solicitante",
             String(formulario.correo_solicitante ?? ""),
+        );
+        formData.append(
+            "monto_pagado",
+            String(
+                esMontoFijo.value
+                    ? montoPorConcepto.value.toFixed(2)
+                    : formulario.monto_pagado,
+            ),
         );
         formData.append("observacion", String(formulario.observacion ?? ""));
         formData.append("accion", "generar_qr");
@@ -382,23 +452,55 @@ onBeforeUnmount(() => {
                                 <label
                                     class="mb-2 block text-sm font-bold text-slate-700"
                                 >
-                                    Mensualidad
+                                    {{
+                                        esMensualidad.value
+                                            ? "Mensualidad"
+                                            : esCarreraCompleta.value
+                                              ? "Carrera completa"
+                                              : "Monto a pagar"
+                                    }}
                                 </label>
 
-                                <input
-                                    :value="
-                                        montoFormateado ||
-                                        'Seleccione una inscripción'
-                                    "
-                                    type="text"
-                                    readonly
-                                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Ej. 120.00"
-                                />
+                                <template v-if="esMontoFijo.value">
+                                    <input
+                                        :value="
+                                            montoFormateado ||
+                                            'Seleccione una inscripción'
+                                        "
+                                        type="text"
+                                        readonly
+                                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                        placeholder="Ej. 120.00"
+                                    />
 
-                                <p class="mt-2 text-xs text-slate-500">
-                                    El sistema toma este monto desde la oferta
-                                    académica de la inscripción seleccionada.
+                                    <p class="mt-2 text-xs text-slate-500">
+                                        El monto se obtiene desde la oferta
+                                        académica de la inscripción
+                                        seleccionada.
+                                    </p>
+                                </template>
+
+                                <template v-else>
+                                    <input
+                                        v-model="formulario.monto_pagado"
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                        placeholder="Ej. 120.00"
+                                    />
+
+                                    <p class="mt-2 text-xs text-slate-500">
+                                        Ingresa el monto que corresponde al
+                                        concepto seleccionado.
+                                    </p>
+                                </template>
+
+                                <p
+                                    v-if="formulario.errors.monto_pagado"
+                                    class="mt-2 text-xs font-semibold text-red-600"
+                                >
+                                    {{ formulario.errors.monto_pagado }}
                                 </p>
                             </div>
 
@@ -492,7 +594,7 @@ onBeforeUnmount(() => {
                                 v-if="!estaEnQr"
                                 type="submit"
                                 class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                :disabled="ocupado || !tieneMensualidad"
+                                :disabled="ocupado || !puedeEnviar"
                             >
                                 <span v-if="formulario.processing"
                                     >Procesando...</span
@@ -504,7 +606,7 @@ onBeforeUnmount(() => {
                                 v-else
                                 type="submit"
                                 class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                :disabled="ocupado || !tieneMensualidad"
+                                :disabled="ocupado || !puedeEnviar"
                             >
                                 <span v-if="procesandoQr">Generando QR...</span>
                                 <span v-else>{{ tituloAccion }}</span>
