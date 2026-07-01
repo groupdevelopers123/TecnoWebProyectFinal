@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('carrera_materia', function (Blueprint $table) {
-            $table->renameColumn('semestre', 'periodo_numero');
-        });
+        if (Schema::hasColumn('carrera_materia', 'semestre') && ! Schema::hasColumn('carrera_materia', 'periodo_numero')) {
+            Schema::table('carrera_materia', function (Blueprint $table) {
+                $table->renameColumn('semestre', 'periodo_numero');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('carrera_materia', function (Blueprint $table) {
-            $table->renameColumn('periodo_numero', 'semestre');
-        });
+        if (Schema::hasColumn('carrera_materia', 'periodo_numero') && ! Schema::hasColumn('carrera_materia', 'semestre')) {
+            Schema::table('carrera_materia', function (Blueprint $table) {
+                $table->renameColumn('periodo_numero', 'semestre');
+            });
+        }
     }
 };
