@@ -33,7 +33,10 @@ class PagoFacilCallbackController extends Controller
 
         $estadoNormalizado = $this->normalizarEstado($estado);
 
-        $pagoContado = PagoContado::where('payment_number', $pedidoId)->first();
+        // Buscar por payment_number o por código de transacción (transactionId)
+        $pagoContado = PagoContado::where('payment_number', $pedidoId)
+            ->orWhere('codigo_transaccion', $pedidoId)
+            ->first();
 
         if ($pagoContado) {
             $pagoContado->update([
@@ -45,7 +48,10 @@ class PagoFacilCallbackController extends Controller
             return $this->respuestaOk();
         }
 
-        $pagoCuota = PagoCuota::where('payment_number', $pedidoId)->first();
+        // También buscar en cuotas por payment_number o codigo_transaccion
+        $pagoCuota = PagoCuota::where('payment_number', $pedidoId)
+            ->orWhere('codigo_transaccion', $pedidoId)
+            ->first();
 
         if ($pagoCuota) {
             $estadoCuota = $estadoNormalizado === 'Confirmado' ? 'pagado' : 'pendiente';

@@ -327,17 +327,6 @@ onBeforeUnmount(() => {
                                 <span v-if="verificando">Verificando...</span>
                                 <span v-else>Verificar</span>
                             </button>
-
-                            <button
-                                type="button"
-                                class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                :disabled="verificando"
-                                @click="verificarManual"
-                            >
-                                <i class="fa-solid fa-rotate text-xs"></i>
-                                <span v-if="verificando">Consultando...</span>
-                                <span v-else>Manual</span>
-                            </button>
                         </div>
                     </div>
 

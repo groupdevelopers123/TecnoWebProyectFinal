@@ -313,14 +313,6 @@ const regresar = () => {
                             >
                                 Editar perfil
                             </button>
-
-                            <button
-                                type="button"
-                                class="rounded-2xl bg-slate-100 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-200"
-                                @click="regresar"
-                            >
-                                Volver
-                            </button>
                         </div>
                     </div>
 

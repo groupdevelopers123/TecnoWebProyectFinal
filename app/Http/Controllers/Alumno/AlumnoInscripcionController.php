@@ -165,47 +165,46 @@ class AlumnoInscripcionController extends Controller
                 $pago->refresh();
 
                 return back()->with([
-                    'success' =>
-                        'La inscripción fue registrada y el código QR fue generado.',
+                    'success' => 'La inscripción fue registrada y el código QR fue generado.',
 
                     'pago_generado' => [
                         'id' => $pago->id,
                         'estado' => $pago->estado,
                         'metodo_pago' => $pago->metodo_pago,
-                        'monto_pagado' => $pago->monto_pagado,
-                        'qr_url' => $pago->qr_path
-                            ? Storage::url($pago->qr_path)
-                            : null,
+                        'monto_pagado' => (float) $pago->monto_pagado,
+                        'payment_number' => $pago->payment_number,
+                        'codigo_transaccion' => $pago->codigo_transaccion,
+                        'qr_url' => $pago->qr_path ? Storage::url($pago->qr_path) : null,
+                        'show_url' => null,
+                        'estado_url' => route('alumno.mis-pagos.estado', $pago),
+                        'consultar_url' => route('alumno.mis-pagos.consultar-json', $pago),
                     ],
                 ]);
             } catch (Throwable $error) {
                 $pago->update([
                     'estado' => 'Fallido',
-                    'observacion' => trim(
-                        ($pago->observacion ?? '')
-                        . "\nError PagoFácil: "
-                        . $error->getMessage()
-                    ),
+                    'observacion' => trim((($pago->observacion ?? '') . "\nError PagoFácil: " . $error->getMessage())),
                 ]);
 
-                return back()->with(
-                    'error',
-                    'La inscripción fue registrada, pero no se pudo generar el QR.'
-                );
+                return back()->with('error', 'La inscripción fue registrada, pero no se pudo generar el QR.');
             }
         }
 
 
         return back()->with([
-            'success' =>
-                'La inscripción fue registrada. El pago quedó pendiente de procesamiento.',
+            'success' => 'La inscripción fue registrada. El pago quedó pendiente de procesamiento.',
 
             'pago_generado' => [
                 'id' => $pago->id,
                 'estado' => $pago->estado,
                 'metodo_pago' => $pago->metodo_pago,
-                'monto_pagado' => $pago->monto_pagado,
+                'monto_pagado' => (float) $pago->monto_pagado,
+                'payment_number' => $pago->payment_number,
+                'codigo_transaccion' => $pago->codigo_transaccion,
                 'qr_url' => null,
+                'show_url' => null,
+                'estado_url' => route('alumno.mis-pagos.estado', $pago),
+                'consultar_url' => route('alumno.mis-pagos.consultar-json', $pago),
             ],
         ]);
     }

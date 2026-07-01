@@ -18,10 +18,43 @@ class UsuarioController extends Controller
     ) {
     }
 
+    private function rolesPermitidos()
+    {
+        $query = Role::where('estado', true);
+
+        if (auth()->user()?->tieneRol('secretaria')) {
+            $query->whereIn('nombre', ['alumno', 'docente']);
+        }
+
+        return $query->orderBy('nombre')->get();
+    }
+
+    private function puedeGestionarUsuario(?User $usuario = null): bool
+    {
+        if (! auth()->user()?->esAdministrativo()) {
+            return false;
+        }
+
+        if (! auth()->user()?->tieneRol('secretaria')) {
+            return true;
+        }
+
+        if ($usuario === null) {
+            return true;
+        }
+
+        return in_array($usuario->role?->nombre, ['alumno', 'docente'], true);
+    }
+
     public function index(Request $request)
     {
         $usuarios = User::query()
             ->with('role')
+            ->when(auth()->user()?->tieneRol('secretaria'), function ($query) {
+                $query->whereHas('role', function ($q) {
+                    $q->whereIn('nombre', ['alumno', 'docente']);
+                });
+            })
             ->when($request->buscar, function ($query, $buscar) {
                 $query->where(function ($q) use ($buscar) {
                     $q->where('nombres', 'ILIKE', "%{$buscar}%")
@@ -30,14 +63,19 @@ class UsuarioController extends Controller
                         ->orWhere('email', 'ILIKE', "%{$buscar}%");
                 });
             })
-            ->when($request->role_id, function ($query, $roleId) {
-                $query->where('role_id', $roleId);
+            ->when($request->filled('role_id'), function ($query) use ($request) {
+                $roleId = $request->input('role_id');
+                $allowedRoleIds = $this->rolesPermitidos()->pluck('id');
+
+                if ($allowedRoleIds->contains($roleId)) {
+                    $query->where('role_id', $roleId);
+                }
             })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        $roles = Role::where('estado', true)->orderBy('nombre')->get();
+        $roles = $this->rolesPermitidos();
 
         if ($request->ajax()) {
             return response()->json([
@@ -68,7 +106,7 @@ class UsuarioController extends Controller
 
     public function create()
     {
-        $roles = Role::where('estado', true)->orderBy('nombre')->get();
+        $roles = $this->rolesPermitidos();
 
         return view('admin.usuarios.create', compact('roles'));
     }
@@ -94,6 +132,8 @@ class UsuarioController extends Controller
 
     public function show(User $usuario)
     {
+        abort_unless($this->puedeGestionarUsuario($usuario), 403);
+
         $usuario->load([
             'role',
             'propietarioDetalle',
@@ -107,6 +147,8 @@ class UsuarioController extends Controller
 
     public function edit(User $usuario)
     {
+        abort_unless($this->puedeGestionarUsuario($usuario), 403);
+
         $usuario->load([
             'role',
             'propietarioDetalle',
@@ -115,13 +157,15 @@ class UsuarioController extends Controller
             'alumnoDetalle',
         ]);
 
-        $roles = Role::where('estado', true)->orderBy('nombre')->get();
+        $roles = $this->rolesPermitidos();
 
         return view('admin.usuarios.edit', compact('usuario', 'roles'));
     }
 
     public function update(UpdateUsuarioRequest $request, User $usuario)
     {
+        abort_unless($this->puedeGestionarUsuario($usuario), 403);
+
         try {
             $this->usuarioService->actualizar($usuario, $request->validated());
         } catch (QueryException $exception) {
@@ -141,6 +185,8 @@ class UsuarioController extends Controller
 
     public function destroy(User $usuario)
     {
+        abort_unless($this->puedeGestionarUsuario($usuario), 403);
+
         $this->usuarioService->cambiarEstado($usuario);
 
         return redirect()

@@ -447,12 +447,39 @@
             applyPreferencesToDocument(getFormPreferences());
         });
 
-        resetButton.addEventListener('click', function () {
-            setPreference('theme', '');
-            setPreference('mode', 'light');
-            setPreference('contrast', 'normal');
-            fontSizeInput.value = 16;
-            updateFontSizeDisplay(16);
+        resetButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            // Valores por defecto
+            const defaults = {
+                theme: '',
+                mode: 'light',
+                contrast: 'normal',
+                font_size: 16,
+            };
+
+            // Actualizar inputs ocultos
+            themeInput.value = defaults.theme;
+            modeInput.value = defaults.mode;
+            contrastInput.value = defaults.contrast;
+            hiddenFontSizeInput.value = String(defaults.font_size);
+
+            // Actualizar controles visibles
+            fontSizeInput.value = String(defaults.font_size);
+            updateFontSizeDisplay(defaults.font_size);
+
+            // Actualizar botones seleccionados (visual)
+            updateSelectedButtons('theme', defaults.theme);
+            updateSelectedButtons('mode', defaults.mode);
+            updateSelectedButtons('contrast', defaults.contrast);
+
+            // Disparar eventos de cambio para que otros listeners reaccionen
+            ['input-theme', 'input-mode', 'input-contrast', 'input-font-size'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            // Aplicar estilos al documento
             applyPreferencesToDocument(getFormPreferences());
         });
 

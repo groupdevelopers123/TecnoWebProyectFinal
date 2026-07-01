@@ -10,6 +10,7 @@ use App\Models\OfertaAcademica;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\CarreraMateria;
+use Illuminate\Database\QueryException;
 
 class InscripcionController extends Controller
 {
@@ -208,20 +209,38 @@ class InscripcionController extends Controller
 
     public function destroy(Inscripcion $inscripcion)
     {
-        DB::transaction(function () use ($inscripcion) {
-            $oferta = OfertaAcademica::lockForUpdate()
-                ->findOrFail($inscripcion->oferta_academica_id);
+        try {
+            DB::transaction(function () use ($inscripcion) {
+                $oferta = OfertaAcademica::lockForUpdate()
+                    ->findOrFail($inscripcion->oferta_academica_id);
 
-            $inscripcion->delete();
+                $inscripcion->delete();
 
-            if ($oferta->cupos_disponibles < $oferta->cantidad_cupos) {
-                $oferta->increment('cupos_disponibles');
-            }
-        });
+                if ($oferta->cupos_disponibles < $oferta->cantidad_cupos) {
+                    $oferta->increment('cupos_disponibles');
+                }
+            });
 
-        return redirect()
-            ->route('admin.inscripciones.index')
-            ->with('success', 'Inscripción eliminada correctamente.');
+            return redirect()
+                ->route('admin.inscripciones.index')
+                ->with('success', 'Inscripción eliminada correctamente.');
+        } catch (QueryException $e) {
+            // Detectar posible restricción de integridad referencial (pagos asociados u otros)
+            $message = 'No se puede eliminar la inscripción porque existen registros relacionados (por ejemplo, pagos).';
+
+            // Loguear la excepción para debugging (opcional)
+            report($e);
+
+            return redirect()
+                ->route('admin.inscripciones.index')
+                ->with('error', $message);
+        } catch (\Exception $e) {
+            report($e);
+
+            return redirect()
+                ->route('admin.inscripciones.index')
+                ->with('error', 'Ocurrió un error al intentar eliminar la inscripción.');
+        }
     }
 
     private function formData(?Inscripcion $inscripcion = null): array

@@ -1,3 +1,9 @@
+@php
+    $rolesDisponibles = auth()->user()?->tieneRol('secretaria')
+        ? $roles->filter(fn ($role) => in_array($role->nombre, ['alumno', 'docente'], true))
+        : $roles;
+@endphp
+
 <div class="grid gap-6 md:grid-cols-2">
 
     <div class="md:col-span-2">
@@ -10,7 +16,7 @@
         <select name="role_id" id="role_id" required
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
             <option value="">Seleccione un rol</option>
-            @foreach ($roles as $role)
+            @foreach ($rolesDisponibles as $role)
                 <option
                     value="{{ $role->id }}"
                     data-role="{{ $role->nombre }}"

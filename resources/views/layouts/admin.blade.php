@@ -153,14 +153,16 @@
                 </a>
             </div>
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.bitacora.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.bitacora.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-book-open w-5 text-center"></i>
-                    <span>Bitácora</span>
-                </a>
-            </div>
+            @if (auth()->user()?->role?->nombre === 'propietario')
+                <div class="space-y-2">
+                    <a href="{{ route('admin.bitacora.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.bitacora.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-book-open w-5 text-center"></i>
+                        <span>Bitácora</span>
+                    </a>
+                </div>
+            @endif
 
             <div class="mt-auto pt-6">
                 <div class="space-y-2 border-t border-slate-800 pt-4">

@@ -43,11 +43,17 @@ const estaDisponible = computed(() => {
     );
 });
 
+const yaInscrito = computed(() => {
+    return Boolean(props.oferta?.inscrito ?? false);
+});
+
 const cerrarModal = () => {
     emit("cerrar");
 };
 
 const handleInscribirse = () => {
+    if (yaInscrito.value) return;
+
     emit("inscribirse", props.oferta);
 };
 
@@ -259,11 +265,12 @@ onBeforeUnmount(() => document.removeEventListener("keydown", cerrarConEscape));
                             </button>
                             <button
                                 type="button"
-                                class="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700 sm:w-auto"
-                                :disabled="!estaDisponible"
+                                class="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed sm:w-auto"
+                                :disabled="!estaDisponible || yaInscrito"
                                 @click="handleInscribirse"
                             >
-                                Inscribirme
+                                <span v-if="yaInscrito">Ya estás inscrito</span>
+                                <span v-else>Inscribirme</span>
                             </button>
                         </div>
                     </div>

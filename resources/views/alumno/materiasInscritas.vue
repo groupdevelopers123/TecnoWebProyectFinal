@@ -22,7 +22,19 @@ const props = defineProps({
     },
 });
 
+import { onMounted } from "vue";
+
 const selectedCarrera = ref("");
+
+onMounted(() => {
+    try {
+        const url = new URL(window.location.href);
+        const carreraParam = url.searchParams.get("carrera");
+        if (carreraParam) selectedCarrera.value = String(carreraParam);
+    } catch (e) {
+        // ignore
+    }
+});
 
 const carreras = computed(() =>
     props.carrerasConMaterias

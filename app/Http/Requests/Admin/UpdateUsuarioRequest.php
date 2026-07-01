@@ -14,7 +14,24 @@ class UpdateUsuarioRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->esAdministrativo();
+        if (! auth()->check() || ! auth()->user()->esAdministrativo()) {
+            return false;
+        }
+
+        if (! auth()->user()->tieneRol('secretaria')) {
+            return true;
+        }
+
+        $roleId = $this->input('role_id');
+        if ($roleId) {
+            $role = Role::find($roleId);
+
+            return $role && in_array($role->nombre, ['alumno', 'docente'], true);
+        }
+
+        $usuario = $this->route('usuario');
+
+        return $usuario && in_array($usuario->role?->nombre, ['alumno', 'docente'], true);
     }
 
     public function rules(): array

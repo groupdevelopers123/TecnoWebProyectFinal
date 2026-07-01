@@ -7,6 +7,7 @@ import HeaderAlumno from "../partials/headerAlumno.vue";
 import PageVisitCounter from "../partials/PageVisitCounter.vue";
 import ModalDetalleOferta from "./components/ModalDetalleOferta.vue";
 import ModalInscripcionOferta from "./components/ModalInscripcionOferta.vue";
+import ModalQrPagoFacil from "./components/ModalQrPagoFacil.vue";
 
 const props = defineProps({
     ofertas: {
@@ -75,6 +76,30 @@ const abrirInscripcionDesdeDetalle = (oferta) => {
 const cerrarModalInscripcion = () => {
     modalInscripcionAbierto.value = false;
     ofertaInscripcion.value = null;
+};
+
+// QR modal
+const mostrarModalQr = ref(false);
+const pagoQrActual = ref(null);
+
+const abrirModalQr = (pago) => {
+    pagoQrActual.value = pago;
+    mostrarModalQr.value = true;
+};
+
+const cerrarModalQr = () => {
+    mostrarModalQr.value = false;
+    pagoQrActual.value = null;
+};
+
+const handlePagoConfirmado = (pago) => {
+    // Cerrar modal y recargar la página actual para volver
+    // al estado previo (evita navegar a la ruta pública)
+    cerrarModalQr();
+
+    // Recarga completa para evitar que Laravel devuelva
+    // la vista pública con header de guest
+    window.location.reload();
 };
 
 /*
@@ -628,6 +653,14 @@ const formatearPrecio = (valor) => {
             :mostrar="modalInscripcionAbierto"
             :oferta="ofertaInscripcion"
             @cerrar="cerrarModalInscripcion"
+            @qr-generado="abrirModalQr"
+        />
+
+        <ModalQrPagoFacil
+            :mostrar="mostrarModalQr"
+            :pago="pagoQrActual"
+            @cerrar="cerrarModalQr"
+            @confirmado="handlePagoConfirmado"
         />
     </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 import HeaderAlumno from "../partials/headerAlumno.vue";
 import PageVisitCounter from "../partials/PageVisitCounter.vue";
 
@@ -23,6 +23,15 @@ const formatearFecha = (fecha) => {
         month: "long",
         year: "numeric",
     }).format(fechaObjeto);
+};
+
+const verMaterias = (carreraId) => {
+    if (!carreraId) {
+        router.visit("/alumno/materias-inscritas");
+        return;
+    }
+
+    router.visit(`/alumno/materias-inscritas?carrera=${carreraId}`);
 };
 </script>
 
@@ -192,7 +201,8 @@ const formatearFecha = (fecha) => {
                         <!-- Botón -->
                         <button
                             type="button"
-                            class="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100"
+                            @click="verMaterias(item.carrera.id)"
+                            class="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-600 transition hover:bg-blue-100 btn-hand"
                         >
                             <svg
                                 class="h-4 w-4"
@@ -207,6 +217,24 @@ const formatearFecha = (fecha) => {
                                 />
                             </svg>
                             Ver materias
+
+                            <!-- Hand animation -->
+                            <span class="hand" aria-hidden="true">
+                                <svg
+                                    class="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M14 2v6l4 .5a2 2 0 0 1 1.8 2V19a2 2 0 0 1-2 2H9a3 3 0 0 1-3-3V9"
+                                    />
+                                    <path d="M7 11V6a2 2 0 0 1 4 0v5" />
+                                </svg>
+                            </span>
                         </button>
                     </article>
                 </div>
@@ -220,3 +248,45 @@ const formatearFecha = (fecha) => {
         </footer>
     </div>
 </template>
+
+<style scoped>
+.btn-hand {
+    position: relative;
+    overflow: visible;
+}
+.btn-hand .hand {
+    position: absolute;
+    right: 0.75rem; /* mismo padding derecho visual */
+    top: 50%;
+    transform: translateX(60%) translateY(-50%) rotate(0deg);
+    opacity: 0;
+    transition:
+        transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+        opacity 0.18s ease;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-hand:hover .hand {
+    transform: translateX(0) translateY(-50%) rotate(-10deg);
+    opacity: 1;
+    animation: hand-wave 900ms ease-in-out infinite;
+}
+@keyframes hand-wave {
+    0% {
+        transform: translateX(0) translateY(-50%) rotate(-10deg);
+    }
+    25% {
+        transform: translateX(0) translateY(-50%) rotate(8deg);
+    }
+    50% {
+        transform: translateX(0) translateY(-50%) rotate(-4deg);
+    }
+    75% {
+        transform: translateX(0) translateY(-50%) rotate(6deg);
+    }
+    100% {
+        transform: translateX(0) translateY(-50%) rotate(-10deg);
+    }
+}
+</style>

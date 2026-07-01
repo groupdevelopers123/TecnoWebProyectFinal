@@ -6,6 +6,12 @@
 
 @section('content')
 
+@php
+    $rolesDisponibles = auth()->user()?->tieneRol('secretaria')
+        ? $roles->filter(fn ($role) => in_array($role->nombre, ['alumno', 'docente'], true))
+        : $roles;
+@endphp
+
 <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -38,7 +44,7 @@
             <select name="role_id"
                     class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
                 <option value="">Todos los roles</option>
-                @foreach ($roles as $role)
+                @foreach ($rolesDisponibles as $role)
                     <option value="{{ $role->id }}" @selected(request('role_id') == $role->id)>
                         {{ ucfirst($role->nombre) }}
                     </option>

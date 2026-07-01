@@ -15,7 +15,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["cerrar"]);
+const emit = defineEmits(["cerrar", "qr-generado"]);
 
 const formulario = useForm({
     oferta_academica_id: null,
@@ -103,10 +103,13 @@ const manejarExitoInscripcion = (pagina) => {
 
     if (formulario.metodo_pago === "QR") {
         if (pagoGenerado?.qr_url) {
-            qrGeneradoUrl.value = pagoGenerado.qr_url;
-            mensajeQr.value =
-                "La inscripción fue registrada y el QR quedó listo para el pago.";
-            tipoMensajeQr.value = "success";
+            // Emitir el pago al padre para que abra el modal de QR global
+            emit("qr-generado", pagoGenerado);
+
+            // Cerrar este modal
+            formulario.reset();
+            limpiarEstadoQr();
+            emit("cerrar");
 
             return;
         }

@@ -51,6 +51,23 @@
     </form>
 </div>
 
+@if (session('success'))
+    <div class="mt-6 mb-4 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700 shadow-sm">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="mt-6 mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 shadow-sm">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    </div>
+@endif
+
+
 <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200">
