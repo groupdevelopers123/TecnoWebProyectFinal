@@ -11,6 +11,7 @@ use App\Notifications\CreditoHabilitado;
 use App\Services\CreditoCuotaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class CreditoController extends Controller
 {
@@ -42,18 +43,41 @@ class CreditoController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.pagos.creditos.index', compact('creditos'));
+        return Inertia::render('admin/pagos/creditos/Index', [
+            'creditos' => [
+                'data' => $creditos->getCollection()->map(function (Credito $credito) {
+                    return $this->serializeCredito($credito);
+                })->values(),
+                'pagination' => [
+                    'current_page' => $creditos->currentPage(),
+                    'last_page' => $creditos->lastPage(),
+                    'per_page' => $creditos->perPage(),
+                    'total' => $creditos->total(),
+                    'prev_page_url' => $creditos->previousPageUrl(),
+                    'next_page_url' => $creditos->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('admin.pagos.creditos.create', [
+        return Inertia::render('admin/pagos/creditos/Create', [
             ...$this->formData(),
-            'credito' => new Credito([
+            'credito' => [
+                'inscripcion_id' => null,
+                'concepto_pago_id' => null,
                 'tipo_pago' => 'CREDITO',
                 'estado' => 'pendiente',
-                'fecha_otorgamiento' => now(),
-            ]),
+                'monto_total' => '',
+                'saldo_pendiente' => '',
+                'cantidad_cuotas' => '',
+                'fecha_otorgamiento' => now()->format('Y-m-d'),
+                'fecha_vencimiento' => '',
+            ],
         ]);
     }
 
@@ -89,14 +113,24 @@ class CreditoController extends Controller
             'pagoCuotas',
         ]);
 
-        return view('admin.pagos.creditos.show', compact('credito'));
+        return Inertia::render('admin/pagos/creditos/Show', [
+            'credito' => $this->serializeCredito($credito),
+        ]);
     }
 
     public function edit(Credito $credito)
     {
-        return view('admin.pagos.creditos.edit', [
+        $credito->load([
+            'inscripcion.alumnoDetalle.user',
+            'inscripcion.ofertaAcademica.carrera',
+            'inscripcion.ofertaAcademica.periodoAcademico',
+            'conceptoPago',
+            'pagoCuotas',
+        ]);
+
+        return Inertia::render('admin/pagos/creditos/Edit', [
             ...$this->formData(),
-            'credito' => $credito,
+            'credito' => $this->serializeCredito($credito),
         ]);
     }
 
@@ -153,12 +187,86 @@ class CreditoController extends Controller
                     'ofertaAcademica.periodoAcademico',
                 ])
                 ->latest()
-                ->get(),
+                ->get()
+                ->map(function (Inscripcion $inscripcion) {
+                    return [
+                        'id' => $inscripcion->id,
+                        'alumnoDetalle' => [
+                            'user' => $inscripcion->alumnoDetalle?->user ? [
+                                'nombres' => $inscripcion->alumnoDetalle->user->nombres,
+                                'apellidos' => $inscripcion->alumnoDetalle->user->apellidos,
+                                'ci' => $inscripcion->alumnoDetalle->user->ci,
+                            ] : null,
+                        ],
+                        'ofertaAcademica' => [
+                            'carrera' => [
+                                'nombre' => $inscripcion->ofertaAcademica?->carrera?->nombre,
+                            ],
+                            'periodoAcademico' => [
+                                'nombre' => $inscripcion->ofertaAcademica?->periodoAcademico?->nombre,
+                                'gestion' => $inscripcion->ofertaAcademica?->periodoAcademico?->gestion,
+                            ],
+                        ],
+                    ];
+                })
+                ->values(),
 
             'conceptos' => ConceptoPago::query()
                 ->where('estado', 'Activo')
                 ->orderBy('nombre')
-                ->get(),
+                ->get()
+                ->map(function (ConceptoPago $concepto) {
+                    return [
+                        'id' => $concepto->id,
+                        'nombre' => $concepto->nombre,
+                    ];
+                })
+                ->values(),
+        ];
+    }
+
+    private function serializeCredito(Credito $credito): array
+    {
+        return [
+            'id' => $credito->id,
+            'inscripcion_id' => $credito->inscripcion_id,
+            'concepto_pago_id' => $credito->concepto_pago_id,
+            'tipo_pago' => $credito->tipo_pago,
+            'monto_total' => $credito->monto_total,
+            'saldo_pendiente' => $credito->saldo_pendiente,
+            'cantidad_cuotas' => $credito->cantidad_cuotas,
+            'estado' => $credito->estado,
+            'fecha_otorgamiento' => $credito->fecha_otorgamiento?->format('Y-m-d'),
+            'fecha_vencimiento' => $credito->fecha_vencimiento?->format('Y-m-d'),
+            'inscripcion' => [
+                'alumnoDetalle' => [
+                    'user' => $credito->inscripcion?->alumnoDetalle?->user ? [
+                        'nombres' => $credito->inscripcion->alumnoDetalle->user->nombres,
+                        'apellidos' => $credito->inscripcion->alumnoDetalle->user->apellidos,
+                        'ci' => $credito->inscripcion->alumnoDetalle->user->ci,
+                    ] : null,
+                ],
+                'ofertaAcademica' => [
+                    'carrera' => [
+                        'nombre' => $credito->inscripcion?->ofertaAcademica?->carrera?->nombre,
+                    ],
+                    'periodoAcademico' => [
+                        'nombre' => $credito->inscripcion?->ofertaAcademica?->periodoAcademico?->nombre,
+                    ],
+                ],
+            ],
+            'conceptoPago' => $credito->conceptoPago ? [
+                'nombre' => $credito->conceptoPago->nombre,
+            ] : null,
+            'pagoCuotas' => $credito->pagoCuotas?->map(function ($cuota) {
+                return [
+                    'id' => $cuota->id,
+                    'numero_cuota' => $cuota->numero_cuota,
+                    'monto' => $cuota->monto,
+                    'fecha_vencimiento' => $cuota->fecha_vencimiento?->format('Y-m-d'),
+                    'estado' => $cuota->estado,
+                ];
+            })->values()->all() ?? [],
         ];
     }
 }

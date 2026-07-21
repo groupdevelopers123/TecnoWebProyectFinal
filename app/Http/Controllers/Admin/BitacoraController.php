@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bitacora;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class BitacoraController extends Controller
 {
-    public function index(): View
+    public function index()
     {
         $controlDeAcceso = [
             'Dashboard administrativo' => ['propietario' => true, 'secretaria' => true, 'docente' => false, 'alumno' => false],
@@ -36,12 +36,29 @@ class BitacoraController extends Controller
 
         $ultimosEventos = Bitacora::latest()->limit(15)->get();
 
-        return view('admin.bitacora.index', compact(
-            'controlDeAcceso',
-            'loginAceptados',
-            'loginFallados',
-            'recursosMasAccedidos',
-            'ultimosEventos'
-        ));
+        return Inertia::render('admin/bitacora/Index', [
+            'controlDeAcceso' => $controlDeAcceso,
+            'loginAceptados' => $loginAceptados,
+            'loginFallados' => $loginFallados,
+            'recursosMasAccedidos' => $recursosMasAccedidos->map(function ($recurso) {
+                return [
+                    'recurso' => $recurso->recurso,
+                    'total' => (int) $recurso->total,
+                ];
+            })->values(),
+            'ultimosEventos' => $ultimosEventos->map(function ($evento) {
+                return [
+                    'id' => $evento->id,
+                    'tipo' => $evento->tipo,
+                    'estado' => $evento->estado,
+                    'recurso' => $evento->recurso,
+                    'created_at' => $evento->created_at?->toIso8601String(),
+                    'email' => $evento->email,
+                    'user' => $evento->user ? [
+                        'email' => $evento->user->email,
+                    ] : null,
+                ];
+            })->values(),
+        ]);
     }
 }

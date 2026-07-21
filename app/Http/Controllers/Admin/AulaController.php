@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreAulaRequest;
 use App\Http\Requests\Admin\UpdateAulaRequest;
 use App\Models\Aula;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 
 class AulaController extends Controller
@@ -30,7 +31,10 @@ class AulaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        if ($request->ajax()) {
+        // If it's an AJAX request coming from the client-side list fetch (not an Inertia visit),
+        // return plain JSON. Inertia requests include the `X-Inertia` header and must receive
+        // an Inertia response instead of plain JSON.
+        if ($request->ajax() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'data' => $aulas->getCollection()->map(function ($aula) {
                     return [
@@ -56,12 +60,44 @@ class AulaController extends Controller
             ]);
         }
 
-        return view('admin.aulas.index', compact('aulas'));
+        return Inertia::render('admin/aulas/Index', [
+            'aulas' => [
+                'data' => $aulas->getCollection()->map(function ($aula) {
+                    return [
+                        'id' => $aula->id,
+                        'codigo' => $aula->codigo,
+                        'nombre' => $aula->nombre,
+                        'ubicacion' => $aula->ubicacion,
+                        'piso' => $aula->piso,
+                        'capacidad' => $aula->capacidad,
+                        'largo' => $aula->largo,
+                        'ancho' => $aula->ancho,
+                        'disponible' => (bool) $aula->disponible,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $aulas->currentPage(),
+                    'last_page' => $aulas->lastPage(),
+                    'per_page' => $aulas->perPage(),
+                    'total' => $aulas->total(),
+                    'prev_page_url' => $aulas->previousPageUrl(),
+                    'next_page_url' => $aulas->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+                'disponible' => $request->disponible,
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('admin.aulas.create');
+        return Inertia::render('admin/aulas/Create', [
+            'action' => route('admin.aulas.store'),
+            'method' => 'post',
+            'cancelUrl' => route('admin.aulas.index'),
+        ]);
     }
 
     public function store(StoreAulaRequest $request)
@@ -80,12 +116,24 @@ class AulaController extends Controller
     {
         $aula->load('usuarioRegistro');
 
-        return view('admin.aulas.show', compact('aula'));
+        // Prepare minimal computed fields used in the Vue page (server-side helpers)
+        $aulaData = $aula->toArray();
+        $aulaData['estadoTexto'] = $aula->estadoTexto();
+        $aulaData['area'] = method_exists($aula, 'area') ? $aula->area() : null;
+
+        return Inertia::render('admin/aulas/Show', [
+            'aula' => $aulaData,
+        ]);
     }
 
     public function edit(Aula $aula)
     {
-        return view('admin.aulas.edit', compact('aula'));
+        return Inertia::render('admin/aulas/Edit', [
+            'aula' => $aula,
+            'action' => route('admin.aulas.update', $aula),
+            'method' => 'put',
+            'cancelUrl' => route('admin.aulas.index'),
+        ]);
     }
 
     public function update(UpdateAulaRequest $request, Aula $aula)

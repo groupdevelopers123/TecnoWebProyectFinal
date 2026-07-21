@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ConceptoPagoRequest;
 use App\Models\ConceptoPago;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ConceptoPagoController extends Controller
 {
@@ -23,7 +24,7 @@ class ConceptoPagoController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        if ($request->ajax()) {
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
             return response()->json([
                 'data' => $conceptos->getCollection()->map(function ($concepto) {
                     return [
@@ -45,13 +46,39 @@ class ConceptoPagoController extends Controller
             ]);
         }
 
-        return view('admin.concepto-pagos.index', compact('conceptos'));
+        return Inertia::render('admin/concepto-pagos/Index', [
+            'conceptos' => [
+                'data' => $conceptos->getCollection()->map(function ($concepto) {
+                    return [
+                        'id' => $concepto->id,
+                        'nombre' => $concepto->nombre,
+                        'descripcion' => $concepto->descripcion,
+                        'estado' => $concepto->estado,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $conceptos->currentPage(),
+                    'last_page' => $conceptos->lastPage(),
+                    'per_page' => $conceptos->perPage(),
+                    'total' => $conceptos->total(),
+                    'prev_page_url' => $conceptos->previousPageUrl(),
+                    'next_page_url' => $conceptos->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('admin.concepto-pagos.create', [
-            'concepto' => new ConceptoPago(),
+        return Inertia::render('admin/concepto-pagos/Create', [
+            'concepto' => [
+                'nombre' => '',
+                'descripcion' => '',
+                'estado' => 'Activo',
+            ],
         ]);
     }
 
@@ -66,15 +93,25 @@ class ConceptoPagoController extends Controller
 
     public function show(ConceptoPago $concepto_pago)
     {
-        return view('admin.concepto-pagos.show', [
-            'concepto' => $concepto_pago,
+        return Inertia::render('admin/concepto-pagos/Show', [
+            'concepto' => [
+                'id' => $concepto_pago->id,
+                'nombre' => $concepto_pago->nombre,
+                'descripcion' => $concepto_pago->descripcion,
+                'estado' => $concepto_pago->estado,
+            ],
         ]);
     }
 
     public function edit(ConceptoPago $concepto_pago)
     {
-        return view('admin.concepto-pagos.edit', [
-            'concepto' => $concepto_pago,
+        return Inertia::render('admin/concepto-pagos/Edit', [
+            'concepto' => [
+                'id' => $concepto_pago->id,
+                'nombre' => $concepto_pago->nombre,
+                'descripcion' => $concepto_pago->descripcion,
+                'estado' => $concepto_pago->estado,
+            ],
         ]);
     }
 

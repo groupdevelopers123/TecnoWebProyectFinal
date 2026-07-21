@@ -10,22 +10,103 @@ use App\Models\DocenteDetalle;
 use App\Models\Materia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class MateriaController extends Controller
 {
+    private function materiaPayload(Materia $materia): array
+    {
+        $materia->loadMissing(['docenteDetalle.user', 'carreraMaterias.carrera']);
+
+        return [
+            'id' => $materia->id,
+            'codigo' => $materia->codigo,
+            'nombre' => $materia->nombre,
+            'carga_horaria' => $materia->carga_horaria,
+            'docente_detalle_id' => $materia->docente_detalle_id,
+            'estado' => (bool) $materia->estado,
+            'docente' => $materia->docenteDetalle?->user
+                ? trim($materia->docenteDetalle->user->nombres . ' ' . $materia->docenteDetalle->user->apellidos)
+                : null,
+            'docente_detalle' => $materia->docenteDetalle ? [
+                'id' => $materia->docenteDetalle->id,
+                'codigo' => $materia->docenteDetalle->codigo,
+                'especialidad' => $materia->docenteDetalle->especialidad,
+                'titulo' => $materia->docenteDetalle->titulo,
+                'registro_profesional' => $materia->docenteDetalle->registro_profesional,
+                'user' => [
+                    'id' => $materia->docenteDetalle->user?->id,
+                    'nombres' => $materia->docenteDetalle->user?->nombres,
+                    'apellidos' => $materia->docenteDetalle->user?->apellidos,
+                    'email' => $materia->docenteDetalle->user?->email,
+                ],
+            ] : null,
+            'carreras_asignadas' => $materia->carreraMaterias->map(function ($asignacion) {
+                return [
+                    'id' => $asignacion->id,
+                    'periodo_numero' => $asignacion->periodo_numero,
+                    'estado' => (bool) $asignacion->estado,
+                    'carrera' => [
+                        'id' => $asignacion->carrera?->id,
+                        'codigo' => $asignacion->carrera?->codigo,
+                        'nombre' => $asignacion->carrera?->nombre,
+                        'regimen_academico' => $asignacion->carrera?->regimen_academico,
+                    ],
+                ];
+            })->values(),
+        ];
+    }
+
+    private function carrerasActivas()
+    {
+        return Carrera::where('estado', true)
+            ->orderBy('nombre')
+            ->get()
+            ->map(function ($carrera) {
+                return [
+                    'id' => $carrera->id,
+                    'codigo' => $carrera->codigo,
+                    'nombre' => $carrera->nombre,
+                    'regimen_academico' => $carrera->regimen_academico,
+                ];
+            })
+            ->values();
+    }
+
+    private function docentesActivos()
+    {
+        return DocenteDetalle::query()
+            ->with('user')
+            ->whereHas('user', function ($query) {
+                $query->where('estado', true);
+            })
+            ->orderBy('codigo')
+            ->get()
+            ->map(function ($docente) {
+                return [
+                    'id' => $docente->id,
+                    'codigo' => $docente->codigo,
+                    'nombre' => trim(($docente->user?->nombres ?? '') . ' ' . ($docente->user?->apellidos ?? '')),
+                ];
+            })
+            ->values();
+    }
+
     public function index(Request $request)
     {
         $materias = Materia::query()
             ->with(['docenteDetalle.user'])
             ->when($request->buscar, function ($query, $buscar) {
-                $query->where('codigo', 'ILIKE', "%{$buscar}%")
-                    ->orWhere('nombre', 'ILIKE', "%{$buscar}%");
+                $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('codigo', 'ILIKE', "%{$buscar}%")
+                        ->orWhere('nombre', 'ILIKE', "%{$buscar}%");
+                });
             })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        if ($request->ajax()) {
+        if ($request->ajax() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'data' => $materias->getCollection()->map(function ($materia) {
                     return [
@@ -48,44 +129,53 @@ class MateriaController extends Controller
             ]);
         }
 
-        return view('admin.materias.index', compact('materias'));
+        return Inertia::render('admin/materias/Index', [
+            'materias' => [
+                'data' => $materias->getCollection()->map(fn ($materia) => $this->materiaPayload($materia))->values(),
+                'pagination' => [
+                    'current_page' => $materias->currentPage(),
+                    'last_page' => $materias->lastPage(),
+                    'per_page' => $materias->perPage(),
+                    'total' => $materias->total(),
+                    'prev_page_url' => $materias->previousPageUrl(),
+                    'next_page_url' => $materias->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+            ],
+        ]);
     }
 
     public function create()
     {
-        $carreras = Carrera::where('estado', true)
-            ->orderBy('nombre')
-            ->get();
-
-        $docentes = DocenteDetalle::query()
-            ->with('user')
-            ->whereHas('user', function ($query) {
-                $query->where('estado', true);
-            })
-            ->orderBy('codigo')
-            ->get();
-
-        return view('admin.materias.create', [
-            'carreras' => $carreras,
-            'docentes' => $docentes,
+        return Inertia::render('admin/materias/Create', [
+            'carreras' => $this->carrerasActivas(),
+            'docentes' => $this->docentesActivos(),
             'carreraSeleccionada' => null,
+            'action' => route('admin.materias.store'),
+            'cancelUrl' => route('admin.materias.index'),
         ]);
     }
 
     public function createDesdeCarrera(Carrera $carrera)
     {
-        $docentes = DocenteDetalle::query()
-            ->with('user')
-            ->whereHas('user', function ($query) {
-                $query->where('estado', true);
-            })
-            ->orderBy('codigo')
-            ->get();
-
-        return view('admin.materias.create', [
-            'carreras' => collect([$carrera]),
-            'docentes' => $docentes,
-            'carreraSeleccionada' => $carrera,
+        return Inertia::render('admin/materias/Create', [
+            'carreras' => collect([$carrera])->map(fn ($item) => [
+                'id' => $item->id,
+                'codigo' => $item->codigo,
+                'nombre' => $item->nombre,
+                'regimen_academico' => $item->regimen_academico,
+            ])->values(),
+            'docentes' => $this->docentesActivos(),
+            'carreraSeleccionada' => [
+                'id' => $carrera->id,
+                'codigo' => $carrera->codigo,
+                'nombre' => $carrera->nombre,
+                'regimen_academico' => $carrera->regimen_academico,
+            ],
+            'action' => route('admin.materias.store'),
+            'cancelUrl' => route('admin.materias.index'),
         ]);
     }
 
@@ -116,26 +206,20 @@ class MateriaController extends Controller
 
     public function show(Materia $materia)
     {
-        $materia->load(['carreraMaterias.carrera', 'docenteDetalle.user']);
-
-        return view('admin.materias.show', compact('materia'));
+        return Inertia::render('admin/materias/Show', [
+            'materia' => $this->materiaPayload($materia),
+        ]);
     }
 
     public function edit(Materia $materia)
     {
-        $carreras = Carrera::where('estado', true)
-            ->orderBy('nombre')
-            ->get();
-
-        $docentes = DocenteDetalle::query()
-            ->with('user')
-            ->whereHas('user', function ($query) {
-                $query->where('estado', true);
-            })
-            ->orderBy('codigo')
-            ->get();
-
-        return view('admin.materias.edit', compact('materia', 'carreras', 'docentes'));
+        return Inertia::render('admin/materias/Edit', [
+            'materia' => $this->materiaPayload($materia),
+            'carreras' => $this->carrerasActivas(),
+            'docentes' => $this->docentesActivos(),
+            'action' => route('admin.materias.update', $materia),
+            'cancelUrl' => route('admin.materias.index'),
+        ]);
     }
 
     public function update(MateriaRequest $request, Materia $materia)

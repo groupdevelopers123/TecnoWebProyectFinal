@@ -87,6 +87,11 @@ Route::middleware(['auth', 'role:propietario,secretaria'])
 
         Route::resource('carreras', CarreraController::class);
 
+        Route::resource('carrera-materias', CarreraMateriaController::class)
+            ->parameters([
+                'carrera-materias' => 'asignacion',
+            ]);
+
         Route::post('/carreras/{carrera}/materias', [CarreraMateriaController::class, 'storeDesdeModal'])
             ->name('carreras.materias.store');
 

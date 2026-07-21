@@ -9,6 +9,7 @@ use App\Models\PagoCuota;
 use App\Services\PagoFacilService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Throwable;
 
 class PagoCuotaController extends Controller
@@ -40,10 +41,39 @@ class PagoCuotaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.pagos.pago-cuotas.index', compact('cuotas'));
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'data' => $cuotas->getCollection()->map(fn ($cuota) => $this->serializeCuota($cuota))->values(),
+                'pagination' => [
+                    'current_page' => $cuotas->currentPage(),
+                    'last_page' => $cuotas->lastPage(),
+                    'per_page' => $cuotas->perPage(),
+                    'total' => $cuotas->total(),
+                    'prev_page_url' => $cuotas->previousPageUrl(),
+                    'next_page_url' => $cuotas->nextPageUrl(),
+                ],
+            ]);
+        }
+
+        return Inertia::render('admin/pagos/pago-cuotas/Index', [
+            'cuotas' => [
+                'data' => $cuotas->getCollection()->map(fn ($cuota) => $this->serializeCuota($cuota))->values(),
+                'pagination' => [
+                    'current_page' => $cuotas->currentPage(),
+                    'last_page' => $cuotas->lastPage(),
+                    'per_page' => $cuotas->perPage(),
+                    'total' => $cuotas->total(),
+                    'prev_page_url' => $cuotas->previousPageUrl(),
+                    'next_page_url' => $cuotas->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+            ],
+        ]);
     }
 
-    public function cuotasPorCredito(Credito $credito)
+    public function cuotasPorCredito(Credito $credito, Request $request)
     {
         $credito->load([
             'inscripcion.alumnoDetalle.user',
@@ -52,6 +82,38 @@ class PagoCuotaController extends Controller
                 $query->orderBy('numero_cuota');
             },
         ]);
+
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'credito' => [
+                    'id' => $credito->id,
+                    'monto_total' => (float) $credito->monto_total,
+                    'saldo_pendiente' => (float) $credito->saldo_pendiente,
+                    'inscripcion' => [
+                        'alumnoDetalle' => [
+                            'user' => [
+                                'nombres' => $credito->inscripcion?->alumnoDetalle?->user?->nombres,
+                                'apellidos' => $credito->inscripcion?->alumnoDetalle?->user?->apellidos,
+                                'ci' => $credito->inscripcion?->alumnoDetalle?->user?->ci,
+                            ],
+                        ],
+                    ],
+                    'conceptoPago' => [
+                        'nombre' => $credito->conceptoPago?->nombre,
+                    ],
+                ],
+                'cuotas' => $credito->pagoCuotas->map(function ($cuota) {
+                    return [
+                        'id' => $cuota->id,
+                        'numero_cuota' => $cuota->numero_cuota,
+                        'monto' => (float) $cuota->monto,
+                        'fecha_vencimiento' => $cuota->fecha_vencimiento?->format('Y-m-d'),
+                        'fecha_pago' => $cuota->fecha_pago?->format('Y-m-d'),
+                        'estado_cuota' => $cuota->estado_cuota,
+                    ];
+                })->values(),
+            ]);
+        }
 
         return view('admin.pagos.pago-cuotas._modal-index', compact('credito'));
     }
@@ -64,8 +126,8 @@ class PagoCuotaController extends Controller
             'credito.conceptoPago',
         ]);
 
-        return view('admin.pagos.pago-cuotas.show', [
-            'cuota' => $pago_cuota,
+        return Inertia::render('admin/pagos/pago-cuotas/Show', [
+            'cuota' => $this->serializeCuota($pago_cuota),
         ]);
     }
 
@@ -83,15 +145,15 @@ class PagoCuotaController extends Controller
             'credito.conceptoPago',
         ]);
 
-        return view('admin.pagos.pago-cuotas.edit', [
-            'cuota' => $pago_cuota,
+        return Inertia::render('admin/pagos/pago-cuotas/Edit', [
+            'cuota' => $this->serializeCuota($pago_cuota),
         ]);
     }
 
     public function update(PagoCuotaRequest $request, PagoCuota $pago_cuota, PagoFacilService $pagoFacilService)
     {
         if ($pago_cuota->estado_cuota === 'pagado') {
-            if ($request->ajax()) {
+            if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
                 return response()->json([
                     'ok' => false,
                     'message' => 'Esta cuota ya fue pagada y no puede modificarse.',
@@ -124,7 +186,7 @@ class PagoCuotaController extends Controller
 
                 $pago_cuota->refresh();
 
-                if ($request->ajax()) {
+                if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
                     return response()->json([
                         'ok' => true,
                         'message' => 'QR de cuota generado correctamente.',
@@ -149,7 +211,7 @@ class PagoCuotaController extends Controller
                     'observacion' => trim(($pago_cuota->observacion ?? '') . "\nError PagoFácil: " . $e->getMessage()),
                 ]);
 
-                if ($request->ajax()) {
+                if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
                     return response()->json([
                         'ok' => false,
                         'message' => 'No se pudo generar el QR: ' . $e->getMessage(),
@@ -218,5 +280,37 @@ class PagoCuotaController extends Controller
                 'message' => 'No se pudo consultar la cuota: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function serializeCuota(PagoCuota $pagoCuota): array
+    {
+        return [
+            'id' => $pagoCuota->id,
+            'numero_cuota' => $pagoCuota->numero_cuota,
+            'monto' => (float) $pagoCuota->monto,
+            'fecha_vencimiento' => $pagoCuota->fecha_vencimiento?->format('Y-m-d'),
+            'fecha_pago' => $pagoCuota->fecha_pago?->format('Y-m-d'),
+            'estado_cuota' => $pagoCuota->estado_cuota,
+            'metodo_pago' => $pagoCuota->metodo_pago,
+            'observacion' => $pagoCuota->observacion,
+            'codigo_transaccion' => $pagoCuota->codigo_transaccion,
+            'correo_solicitante' => $pagoCuota->correo_solicitante,
+            'payment_number' => $pagoCuota->payment_number,
+            'qr_path' => $pagoCuota->qr_path,
+            'qr_url' => $pagoCuota->qr_path ? Storage::url($pagoCuota->qr_path) : null,
+            'fecha_confirmacion' => $pagoCuota->fecha_confirmacion?->format('Y-m-d H:i:s'),
+            'concepto' => [
+                'nombre' => $pagoCuota->credito?->conceptoPago?->nombre,
+            ],
+            'alumno' => [
+                'nombres' => $pagoCuota->credito?->inscripcion?->alumnoDetalle?->user?->nombres,
+                'apellidos' => $pagoCuota->credito?->inscripcion?->alumnoDetalle?->user?->apellidos,
+                'ci' => $pagoCuota->credito?->inscripcion?->alumnoDetalle?->user?->ci,
+            ],
+            'carrera' => [
+                'codigo' => $pagoCuota->credito?->inscripcion?->ofertaAcademica?->carrera?->codigo,
+                'nombre' => $pagoCuota->credito?->inscripcion?->ofertaAcademica?->carrera?->nombre,
+            ],
+        ];
     }
 }

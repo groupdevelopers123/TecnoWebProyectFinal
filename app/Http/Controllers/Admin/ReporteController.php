@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteController extends Controller
@@ -21,12 +22,10 @@ class ReporteController extends Controller
     {
         [$inicio, $fin] = $this->obtenerPeriodo($request);
 
-        return view('admin.reportes.index', [
+        return Inertia::render('admin/reportes/Index', [
             'inicio' => $inicio->format('Y-m-d'),
             'fin' => $fin->format('Y-m-d'),
-
             'estadisticas' => $this->estadisticasGenerales($inicio, $fin),
-
             'pagosContados' => $this->pagosContadosMensuales($inicio, $fin),
             'pagosCreditos' => $this->pagosCreditosMensuales($inicio, $fin),
             'pagosContadosCantidad' => $this->pagosContadosCantidadMensuales($inicio, $fin),

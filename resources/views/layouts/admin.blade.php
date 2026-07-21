@@ -16,6 +16,10 @@
 
 <body class="min-h-screen bg-slate-100 text-slate-800">
 
+@php
+    $rolUsuario = auth()->user()?->role?->nombre;
+@endphp
+
 <div class="flex min-h-screen">
 
     <aside class="fixed left-0 top-0 hidden h-screen w-72 flex-col overflow-y-auto bg-slate-950 px-5 py-6 text-white shadow-2xl lg:flex">
@@ -44,116 +48,132 @@
                 <span>Dashboard</span>
             </a>
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.usuarios.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.usuarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-users w-5 text-center"></i>
-                    <span>Usuarios</span>
-                </a>
-            </div>
-
-            <div class="space-y-2">
-                <a href="{{ route('admin.aulas.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.aulas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-school w-5 text-center"></i>
-                    <span>Aulas</span>
-                </a>
-            </div>
-
-            <div class="space-y-2">
-                <button
-                    type="button"
-                    class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
-                    data-sidebar-toggle
-                    data-target="group-horarios"
-                    aria-expanded="{{ request()->routeIs('admin.carreras.*') || request()->routeIs('admin.materias.*') || request()->routeIs('admin.periodos-academicos.*') || request()->routeIs('admin.horarios.*') ? 'true' : 'false' }}"
-                >
-                    <span class="inline-flex items-center gap-3">
-                        <i class="fa-solid fa-calendar-week w-5 text-center"></i>
-                        Horarios
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
-                </button>
-
-                <div id="group-horarios" class="space-y-2 pl-6 {{ request()->routeIs('admin.carreras.*') || request()->routeIs('admin.materias.*') || request()->routeIs('admin.periodos-academicos.*') || request()->routeIs('admin.horarios.*') ? '' : 'hidden' }}">
-                    <a href="{{ route('admin.carreras.index') }}"
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.usuarios.index') }}"
                        class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.carreras.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-graduation-cap w-5 text-center"></i>
-                        <span>Carreras</span>
-                    </a>
-
-                    <a href="{{ route('admin.materias.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.materias.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-book-open w-5 text-center"></i>
-                        <span>Materias</span>
-                    </a>
-
-                    <a href="{{ route('admin.periodos-academicos.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.periodos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-calendar-days w-5 text-center"></i>
-                        <span>Periodos</span>
-                    </a>
-
-                    <a href="{{ route('admin.horarios.index') }}"
-                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                       {{ request()->routeIs('admin.horarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                        <i class="fa-solid fa-clock w-5 text-center"></i>
-                        <span>Horarios</span>
+                       {{ request()->routeIs('admin.usuarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-users w-5 text-center"></i>
+                        <span>Usuarios</span>
                     </a>
                 </div>
-            </div>
+            @endif
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.ofertas-academicas.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.ofertas-academicas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-bookmark w-5 text-center"></i>
-                    <span>Ofertas académicas</span>
-                </a>
-            </div>
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.aulas.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.aulas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-school w-5 text-center"></i>
+                        <span>Aulas</span>
+                    </a>
+                </div>
+            @endif
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.inscripciones.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.inscripciones.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
-                    <span>Inscripciones</span>
-                </a>
-            </div>
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <button
+                        type="button"
+                        class="group flex w-full items-center justify-between gap-3 rounded-2xl bg-slate-900/80 px-4 py-3 text-left text-sm font-bold text-white transition duration-200 hover:bg-white/10"
+                        data-sidebar-toggle
+                        data-target="group-horarios"
+                        aria-expanded="{{ request()->routeIs('admin.carreras.*') || request()->routeIs('admin.materias.*') || request()->routeIs('admin.periodos-academicos.*') || request()->routeIs('admin.horarios.*') ? 'true' : 'false' }}"
+                    >
+                        <span class="inline-flex items-center gap-3">
+                            <i class="fa-solid fa-calendar-week w-5 text-center"></i>
+                            Horarios
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-slate-300 transition-transform duration-200" aria-hidden="true"></i>
+                    </button>
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.seguimientos-academicos.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.seguimientos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                    <span>Seguimiento académico</span>
-                </a>
-            </div>
+                    <div id="group-horarios" class="space-y-2 pl-6 {{ request()->routeIs('admin.carreras.*') || request()->routeIs('admin.materias.*') || request()->routeIs('admin.periodos-academicos.*') || request()->routeIs('admin.horarios.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('admin.carreras.index') }}"
+                           class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                           {{ request()->routeIs('admin.carreras.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                            <i class="fa-solid fa-graduation-cap w-5 text-center"></i>
+                            <span>Carreras</span>
+                        </a>
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.pago-contados.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.pago-contados.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-                    <span>Pagos</span>
-                </a>
-            </div>
+                        <a href="{{ route('admin.materias.index') }}"
+                           class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                           {{ request()->routeIs('admin.materias.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                            <i class="fa-solid fa-book-open w-5 text-center"></i>
+                            <span>Materias</span>
+                        </a>
 
-            <div class="space-y-2">
-                <a href="{{ route('admin.reportes.index') }}"
-                   class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
-                   {{ request()->routeIs('admin.reportes.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                    <span>Reportes</span>
-                </a>
-            </div>
+                        <a href="{{ route('admin.periodos-academicos.index') }}"
+                           class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                           {{ request()->routeIs('admin.periodos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                            <i class="fa-solid fa-calendar-days w-5 text-center"></i>
+                            <span>Periodos</span>
+                        </a>
 
-            @if (auth()->user()?->role?->nombre === 'propietario')
+                        <a href="{{ route('admin.horarios.index') }}"
+                           class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                           {{ request()->routeIs('admin.horarios.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                            <i class="fa-solid fa-clock w-5 text-center"></i>
+                            <span>Horarios</span>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.ofertas-academicas.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.ofertas-academicas.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-bookmark w-5 text-center"></i>
+                        <span>Ofertas académicas</span>
+                    </a>
+                </div>
+            @endif
+
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.inscripciones.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.inscripciones.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
+                        <span>Inscripciones</span>
+                    </a>
+                </div>
+            @endif
+
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.seguimientos-academicos.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.seguimientos-academicos.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                        <span>Seguimiento académico</span>
+                    </a>
+                </div>
+            @endif
+
+            @if (in_array($rolUsuario, ['propietario', 'secretaria', 'docente', 'alumno'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.pago-contados.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.pago-contados.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+                        <span>Pagos</span>
+                    </a>
+                </div>
+            @endif
+
+            @if (in_array($rolUsuario, ['propietario', 'secretaria'], true))
+                <div class="space-y-2">
+                    <a href="{{ route('admin.reportes.index') }}"
+                       class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10
+                       {{ request()->routeIs('admin.reportes.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300' }}">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
+            @endif
+
+            @if ($rolUsuario === 'propietario')
                 <div class="space-y-2">
                     <a href="{{ route('admin.bitacora.index') }}"
                        class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10

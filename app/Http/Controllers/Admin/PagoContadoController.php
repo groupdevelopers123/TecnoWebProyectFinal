@@ -10,6 +10,7 @@ use App\Models\PagoContado;
 use App\Services\PagoFacilService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Throwable;
 
 class PagoContadoController extends Controller
@@ -46,7 +47,7 @@ class PagoContadoController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        if ($request->ajax()) {
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
             return response()->json([
                 'data' => $pagos->getCollection()->map(function ($pago) {
                     return [
@@ -88,12 +89,59 @@ class PagoContadoController extends Controller
             ]);
         }
 
-        return view('admin.pagos.pago-contados.index', compact('pagos'));
+        return Inertia::render('admin/pagos/pago-contados/Index', [
+            'pagos' => [
+                'data' => $pagos->getCollection()->map(function ($pago) {
+                    return [
+                        'id' => $pago->id,
+                        'monto_pagado' => $pago->monto_pagado,
+                        'fecha_pago' => $pago->fecha_pago?->format('Y-m-d'),
+                        'metodo_pago' => $pago->metodo_pago,
+                        'estado' => $pago->estado,
+                        'codigo_transaccion' => $pago->codigo_transaccion,
+                        'payment_number' => $pago->payment_number,
+                        'qr_url' => $pago->qr_path ? Storage::url($pago->qr_path) : null,
+
+                        'concepto_pago' => [
+                            'nombre' => $pago->conceptoPago?->nombre,
+                        ],
+
+                        'alumno' => [
+                            'nombres' => $pago->inscripcion?->alumnoDetalle?->user?->nombres,
+                            'apellidos' => $pago->inscripcion?->alumnoDetalle?->user?->apellidos,
+                            'ci' => $pago->inscripcion?->alumnoDetalle?->user?->ci,
+                        ],
+
+                        'carrera' => [
+                            'codigo' => $pago->inscripcion?->ofertaAcademica?->carrera?->codigo,
+                            'nombre' => $pago->inscripcion?->ofertaAcademica?->carrera?->nombre,
+                        ],
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $pagos->currentPage(),
+                    'last_page' => $pagos->lastPage(),
+                    'per_page' => $pagos->perPage(),
+                    'total' => $pagos->total(),
+                    'prev_page_url' => $pagos->previousPageUrl(),
+                    'next_page_url' => $pagos->nextPageUrl(),
+                ],
+            ],
+            'request' => [
+                'buscar' => $request->buscar,
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('admin.pagos.pago-contados.create', $this->formData());
+        return Inertia::render('admin/pagos/pago-contados/Create', [
+            ...$this->formData(),
+            'action' => route('admin.pago-contados.store'),
+            'method' => 'post',
+            'cancelUrl' => route('admin.pago-contados.index'),
+            'pago' => [],
+        ]);
     }
 
     public function store(PagoContadoRequest $request, PagoFacilService $pagoFacilService)
@@ -114,7 +162,7 @@ class PagoContadoController extends Controller
 
                 $pago->refresh();
 
-                if ($request->ajax()) {
+                if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
                     return response()->json([
                         'ok' => true,
                         'message' => 'QR PagoFácil generado correctamente.',
@@ -141,7 +189,7 @@ class PagoContadoController extends Controller
                     'observacion' => trim(($pago->observacion ?? '') . "\nError PagoFácil: " . $e->getMessage()),
                 ]);
 
-                if ($request->ajax()) {
+                if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
                     return response()->json([
                         'ok' => false,
                         'message' => 'El pago fue registrado, pero no se pudo generar el QR: ' . $e->getMessage(),
@@ -155,7 +203,7 @@ class PagoContadoController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if (($request->ajax() || $request->wantsJson()) && ! $request->header('X-Inertia')) {
             return response()->json([
                 'ok' => true,
                 'message' => 'Pago al contado registrado correctamente.',
@@ -176,16 +224,25 @@ class PagoContadoController extends Controller
             'conceptoPago',
         ]);
 
-        return view('admin.pagos.pago-contados.show', [
-            'pago' => $pago_contado,
+        return Inertia::render('admin/pagos/pago-contados/Show', [
+            'pago' => $this->serializePago($pago_contado),
         ]);
     }
 
     public function edit(PagoContado $pago_contado)
     {
-        return view('admin.pagos.pago-contados.edit', [
+        $pago_contado->load([
+            'inscripcion.alumnoDetalle.user',
+            'inscripcion.ofertaAcademica.carrera',
+            'conceptoPago',
+        ]);
+
+        return Inertia::render('admin/pagos/pago-contados/Edit', [
             ...$this->formData(),
-            'pago' => $pago_contado,
+            'pago' => $this->serializePago($pago_contado),
+            'action' => route('admin.pago-contados.update', $pago_contado),
+            'method' => 'put',
+            'cancelUrl' => route('admin.pago-contados.index'),
         ]);
     }
 
@@ -205,7 +262,7 @@ class PagoContadoController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.pagos.pago-contados.index')
+            ->route('admin.pago-contados.index')
             ->with('success', 'Estado del pago actualizado correctamente.');
     }
 
@@ -224,13 +281,48 @@ class PagoContadoController extends Controller
             }
 
             return redirect()
-                ->route('admin.pagos.pago-contados.show', $pago_contado)
+                ->route('admin.pago-contados.show', $pago_contado)
                 ->with('success', 'Consulta realizada correctamente.');
         } catch (Throwable $e) {
             return redirect()
-                ->route('admin.pagos.pago-contados.show', $pago_contado)
+                ->route('admin.pago-contados.show', $pago_contado)
                 ->with('error', 'No se pudo consultar el pago: ' . $e->getMessage());
         }
+    }
+
+    private function serializePago(PagoContado $pago): array
+    {
+        return [
+            'id' => $pago->id,
+            'inscripcion_id' => $pago->inscripcion_id,
+            'concepto_pago_id' => $pago->concepto_pago_id,
+            'monto_pagado' => $pago->monto_pagado,
+            'fecha_pago' => $pago->fecha_pago?->format('Y-m-d'),
+            'metodo_pago' => $pago->metodo_pago,
+            'estado' => $pago->estado,
+            'codigo_transaccion' => $pago->codigo_transaccion,
+            'correo_solicitante' => $pago->correo_solicitante,
+            'observacion' => $pago->observacion,
+            'payment_number' => $pago->payment_number,
+            'qr_url' => $pago->qr_path ? Storage::url($pago->qr_path) : null,
+            'concepto_pago' => [
+                'nombre' => $pago->conceptoPago?->nombre,
+            ],
+            'inscripcion' => [
+                'alumnoDetalle' => [
+                    'user' => [
+                        'nombres' => $pago->inscripcion?->alumnoDetalle?->user?->nombres,
+                        'apellidos' => $pago->inscripcion?->alumnoDetalle?->user?->apellidos,
+                        'ci' => $pago->inscripcion?->alumnoDetalle?->user?->ci,
+                    ],
+                ],
+                'ofertaAcademica' => [
+                    'carrera' => [
+                        'nombre' => $pago->inscripcion?->ofertaAcademica?->carrera?->nombre,
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function formData(): array
