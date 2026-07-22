@@ -49,7 +49,7 @@ class SeguimientoAcademicoController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        if ($request->ajax()) {
+        if ($request->ajax() && ! $request->header('X-Inertia')) {
             return response()->json([
                 'data' => $seguimientos->getCollection()->map(function ($seguimiento) {
                     return [

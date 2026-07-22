@@ -9,6 +9,7 @@ use App\Models\InscripcionMateria;
 use App\Notifications\MateriaInscrita;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class InscripcionMateriaController extends Controller
 {
@@ -20,7 +21,7 @@ class InscripcionMateriaController extends Controller
             'inscripcionMaterias.carreraMateria.materia',
         ]);
 
-        return view('admin.inscripcion-materias.index', compact('inscripcion'));
+        return Inertia::render('admin/inscripcion-materias/Index', compact('inscripcion'));
     }
 
     public function create(Inscripcion $inscripcion)
@@ -44,11 +45,11 @@ class InscripcionMateriaController extends Controller
 
         $inscripcionMateria = new InscripcionMateria();
 
-        return view('admin.inscripcion-materias.create', compact(
-            'inscripcion',
-            'carreraMaterias',
-            'inscripcionMateria'
-        ));
+        return Inertia::render('admin/inscripcion-materias/Create', [
+            'inscripcion' => $inscripcion,
+            'carreraMaterias' => $carreraMaterias,
+            'inscripcionMateria' => $inscripcionMateria,
+        ]);
     }
 
     public function store(Request $request, Inscripcion $inscripcion)
@@ -120,11 +121,11 @@ class InscripcionMateriaController extends Controller
             ->where('id', $inscripcionMateria->carrera_materia_id)
             ->get();
 
-        return view('admin.inscripcion-materias.edit', compact(
-            'inscripcion',
-            'inscripcionMateria',
-            'carreraMaterias'
-        ));
+        return Inertia::render('admin/inscripcion-materias/Edit', [
+            'inscripcion' => $inscripcion,
+            'inscripcionMateria' => $inscripcionMateria,
+            'carreraMaterias' => $carreraMaterias,
+        ]);
     }
 
     public function update(Request $request, Inscripcion $inscripcion, InscripcionMateria $inscripcionMateria)

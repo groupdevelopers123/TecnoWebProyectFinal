@@ -2,9 +2,12 @@
     <Head title="Configuraciones" />
 
     <div class="settings-page min-h-screen bg-slate-100">
-        <component :is="getHeaderComponent" />
+        <component v-if="!isAdministrative" :is="getHeaderComponent" />
 
-        <main class="px-5 pb-10 pt-24 sm:px-6 lg:px-8">
+        <main
+            class="px-5 pb-10 sm:px-6 lg:px-8"
+            :class="isAdministrative ? 'pt-6' : 'pt-24'"
+        >
             <div class="mx-auto max-w-7xl">
                 <!-- Encabezado -->
                 <section
@@ -538,6 +541,14 @@ const getHeaderComponent = computed(() => {
     };
 
     return headerComponents[normalizedRole] ?? HeaderAlumno;
+});
+
+const isAdministrative = computed(() => {
+    const roleName = String(
+        page.props?.auth?.user?.role?.nombre ?? "",
+    ).toLowerCase();
+
+    return ["propietario", "secretaria"].includes(roleName);
 });
 
 /* =========================================================

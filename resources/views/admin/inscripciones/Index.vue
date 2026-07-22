@@ -316,14 +316,10 @@
             </div>
 
             <div class="p-6">
-                <div
-                    v-if="materiasModalLoading"
-                    class="py-12 text-center text-sm text-slate-500"
-                >
-                    Cargando información...
-                </div>
-
-                <div v-else v-html="materiasModalHtml"></div>
+                <MateriasModal
+                    v-if="selectedInscripcion"
+                    :inscripcion="selectedInscripcion"
+                />
             </div>
         </div>
     </div>
@@ -332,6 +328,7 @@
 <script setup>
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, ref, reactive, watch } from "vue";
+import MateriasModal from "../inscripcion-materias/MateriasModal.vue";
 
 const page = usePage();
 const inscripcionesData = computed(() => page.props.inscripciones?.data || []);
@@ -347,9 +344,11 @@ const filters = reactive({ buscar: page.props.request?.buscar || "" });
 const messageSuccess = computed(() => page.props.flash?.success || "");
 const messageError = computed(() => page.props.flash?.error || "");
 const materiasModalOpen = ref(false);
-const materiasModalLoading = ref(false);
-const materiasModalHtml = ref(
-    '<div class="py-12 text-center text-sm text-slate-500">Cargando información...</div>',
+const selectedInscripcionId = ref(null);
+const selectedInscripcion = computed(() =>
+    inscripcionesData.value.find(
+        (inscripcion) => inscripcion.id === selectedInscripcionId.value,
+    ),
 );
 let debounceTimer = null;
 
@@ -424,34 +423,12 @@ function formatDate(value) {
 
 function openMateriasModal(inscripcion) {
     materiasModalOpen.value = true;
-    materiasModalLoading.value = true;
-    materiasModalHtml.value =
-        '<div class="py-12 text-center text-sm text-slate-500">Cargando información...</div>';
-
-    fetch(route("admin.inscripciones.materias.index", inscripcion.id), {
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            Accept: "text/html",
-        },
-    })
-        .then((response) => response.text())
-        .then((html) => {
-            materiasModalHtml.value = html;
-        })
-        .catch(() => {
-            materiasModalHtml.value = `
-                <div class="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
-                    Error al cargar la información.
-                </div>
-            `;
-        })
-        .finally(() => {
-            materiasModalLoading.value = false;
-        });
+    selectedInscripcionId.value = inscripcion.id;
 }
 
 function closeMateriasModal() {
     materiasModalOpen.value = false;
+    selectedInscripcionId.value = null;
 }
 
 watch(

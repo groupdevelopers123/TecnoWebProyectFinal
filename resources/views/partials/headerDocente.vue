@@ -745,7 +745,7 @@ onBeforeUnmount(() => {
                     </Link>
 
                     <Link
-                        href="/configuraciones"
+                        :href="route('configuraciones.show')"
                         class="boton-movil"
                         @click="cerrarMenus"
                     >

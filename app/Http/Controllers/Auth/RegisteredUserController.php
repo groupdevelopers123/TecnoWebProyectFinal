@@ -15,36 +15,35 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class RegisteredUserController extends Controller
 {
-    public function create(Request $request): View
+    public function create(Request $request)
     {
-        return view('auth.register', [
+        return Inertia::render('auth/Register', [
             'ofertaAcademicaId' => $request->query('oferta_academica_id'),
+            'role' => $this->normalizarRol($request->query('role', 'alumno')),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $rolSolicitado = $this->normalizarRol($request->input('role', $request->query('role', 'alumno')));
+
         $request->validate([
             'nombres' => ['required', 'string', 'max:100', 'regex:/^[\p{L} ]+$/u'],
             'apellidos' => ['required', 'string', 'max:100', 'regex:/^[\p{L} ]+$/u'],
-
             'ci' => ['required', 'string', 'max:20', 'regex:/^[0-9\-]+$/', 'unique:users,ci'],
-            'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
-
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:150', 'unique:users,email'],
             'telefono' => ['nullable', 'string', 'max:30', 'regex:/^[0-9 +\-]+$/'],
             'direccion' => ['nullable', 'string', 'max:200'],
             'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
-
-            'colegio_origen' => ['nullable', 'string', 'max:150'],
+            'colegio_origen' => ['nullable', 'string', 'max:150', 'regex:/^[\p{L}0-9 .,#\-]+$/u'],
             'anio_bachillerato' => ['nullable', 'integer', 'min:1950', 'max:' . now()->year],
             'estado_academico' => ['nullable', 'string', 'in:nuevo,bachiller,universitario,profesional'],
-
             'oferta_academica_id' => ['nullable', 'exists:oferta_academicas,id'],
-
+            'role' => ['nullable', 'string', 'in:alumno,docente,propietario,secretaria'],
             'password' => ['required', 'confirmed', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
         ], [
             'nombres.required' => 'Debe ingresar sus nombres.',
@@ -67,6 +66,7 @@ class RegisteredUserController extends Controller
             'fecha_nacimiento.date' => 'Debe ingresar una fecha de nacimiento válida.',
             'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser futura.',
             'colegio_origen.max' => 'El nombre del colegio no puede tener más de 150 caracteres.',
+            'colegio_origen.regex' => 'El colegio de origen solo puede contener letras, números y signos básicos de puntuación.',
             'anio_bachillerato.integer' => 'El año de bachillerato debe ser un número válido.',
             'anio_bachillerato.min' => 'El año de bachillerato no puede ser anterior a 1950.',
             'anio_bachillerato.max' => 'El año de bachillerato no puede ser posterior a ' . now()->year . '.',
@@ -80,19 +80,19 @@ class RegisteredUserController extends Controller
             'oferta_academica_id.exists' => 'La oferta académica seleccionada no existe.',
         ]);
         try {
-            $user = DB::transaction(function () use ($request) {
-                $rolAlumno = Role::where('nombre', 'alumno')->first();
+            $user = DB::transaction(function () use ($request, $rolSolicitado) {
+                $rolUsuario = Role::where('nombre', $rolSolicitado)->first();
 
-                if (! $rolAlumno) {
-                    $rolAlumno = Role::create([
-                        'nombre' => 'alumno',
-                        'descripcion' => 'Usuario alumno registrado desde la página pública',
+                if (! $rolUsuario) {
+                    $rolUsuario = Role::create([
+                        'nombre' => $rolSolicitado,
+                        'descripcion' => 'Rol creado desde el registro público',
                         'estado' => true,
                     ]);
                 }
 
                 $user = User::create([
-                    'role_id' => $rolAlumno->id,
+                    'role_id' => $rolUsuario->id,
                     'nombres' => $request->nombres,
                     'apellidos' => $request->apellidos,
                     'ci' => $request->ci,
@@ -134,14 +134,15 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        if (session('oferta_academica_id')) {
-            return redirect()
-                ->route('public.ofertas.index')
+        $user->loadMissing('role');
+        $rutaDestino = $this->urlPorRol(optional($user->role)->nombre ?? $rolSolicitado);
+
+        if (session('oferta_academica_id') && $rutaDestino === '/alumno/inicio') {
+            return redirect($rutaDestino)
                 ->with('info', 'Registro completado correctamente. Ahora puedes continuar tu inscripción a la oferta académica seleccionada.');
         }
 
-        return redirect()
-            ->route('alumno.home')
+        return redirect($rutaDestino)
             ->with('info', 'Registro completado correctamente.');
     }
 
@@ -152,6 +153,28 @@ class RegisteredUserController extends Controller
         $numero = str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
 
         return 'ALU-' . $anio . '-' . $numero;
+    }
+
+    private function normalizarRol(?string $rol): string
+    {
+        return match (strtolower(trim((string) ($rol ?? 'alumno')))) {
+            'propietario', 'owner', 'admin', 'administrador' => 'propietario',
+            'secretaria', 'secretary' => 'secretaria',
+            'docente', 'teacher' => 'docente',
+            default => 'alumno',
+        };
+    }
+
+    private function urlPorRol(string $rol): string
+    {
+        $rol = strtolower(trim($rol));
+
+        return match ($rol) {
+            'propietario', 'secretaria' => '/admin/dashboard',
+            'docente' => '/docente/inicio',
+            'alumno' => '/alumno/inicio',
+            default => '/',
+        };
     }
 
     private function normalizarEstadoBoolean(bool $estado): bool

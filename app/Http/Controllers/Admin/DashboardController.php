@@ -8,6 +8,7 @@ use App\Models\Inscripcion;
 use App\Models\PagoContado;
 use App\Models\PagoCuota;
 use App\Models\User;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -21,13 +22,13 @@ class DashboardController extends Controller
         $pagosPendientes = PagoCuota::where('estado_cuota', 'pendiente')->count()
             + PagoContado::where('estado', 'Pendiente')->count();
 
-        return view('admin.dashboard', compact(
-            'totalUsuarios',
-            'usuariosActivos',
-            'totalAulas',
-            'aulasDisponibles',
-            'totalInscripciones',
-            'pagosPendientes'
-        ));
+        return Inertia::render('admin/Dashboard', [
+            'totalUsuarios' => $totalUsuarios,
+            'usuariosActivos' => $usuariosActivos,
+            'totalAulas' => $totalAulas,
+            'aulasDisponibles' => $aulasDisponibles,
+            'totalInscripciones' => $totalInscripciones,
+            'pagosPendientes' => $pagosPendientes,
+        ]);
     }
 }

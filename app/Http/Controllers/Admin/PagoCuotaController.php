@@ -115,7 +115,17 @@ class PagoCuotaController extends Controller
             ]);
         }
 
-        return view('admin.pagos.pago-cuotas._modal-index', compact('credito'));
+        return Inertia::render('admin/pagos/pago-cuotas/ModalIndex', [
+            'credito' => $credito,
+            'cuotas' => $credito->pagoCuotas->map(fn ($cuota) => [
+                'id' => $cuota->id,
+                'numero_cuota' => $cuota->numero_cuota,
+                'monto' => (float) $cuota->monto,
+                'fecha_vencimiento' => $cuota->fecha_vencimiento?->format('Y-m-d'),
+                'fecha_pago' => $cuota->fecha_pago?->format('Y-m-d'),
+                'estado_cuota' => $cuota->estado_cuota,
+            ])->values(),
+        ]);
     }
 
     public function show(PagoCuota $pago_cuota)

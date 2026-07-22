@@ -343,6 +343,40 @@
                 </p>
             </div>
 
+            <div class="grid gap-5 md:grid-cols-3 mb-6">
+                <div
+                    class="rounded-3xl border border-slate-200 bg-slate-50 p-5"
+                >
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-600">
+                            Reporte</span
+                        >
+                        <select
+                            v-model="previewReport"
+                            class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        >
+                            <option
+                                v-for="option in reportOptions"
+                                :key="option"
+                                :value="option"
+                            >
+                                {{ option }}
+                            </option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <GenericReportTable
+                    :titulo="selectedPreviewReport.titulo"
+                    :columnas="selectedPreviewReport.columnas"
+                    :filas="selectedPreviewReport.filas"
+                    :inicio="props.inicio"
+                    :fin="props.fin"
+                />
+            </div>
+
             <div class="grid gap-5 md:grid-cols-3">
                 <div class="rounded-3xl border border-slate-200 p-5">
                     <div
@@ -468,6 +502,7 @@
 <script setup>
 import { Head, router } from "@inertiajs/vue3";
 import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import GenericReportTable from "./components/GenericReportTable.vue";
 
 const props = defineProps({
     inicio: { type: String, default: "" },
@@ -479,6 +514,9 @@ const props = defineProps({
     pagosCreditosCantidad: { type: Array, default: () => [] },
     inscripciones: { type: Array, default: () => [] },
     pagosPorConcepto: { type: Array, default: () => [] },
+    inscripcionesReport: { type: Object, default: () => ({}) },
+    pagosReport: { type: Object, default: () => ({}) },
+    creditosReport: { type: Object, default: () => ({}) },
 });
 
 const form = reactive({
@@ -513,6 +551,20 @@ const pieMetric = ref("Pagos Totales");
 const piePeriod = ref("month");
 const ojivaMetric = ref("Pagos Totales");
 const ojivaPeriod = ref("month");
+
+const previewReport = ref("Inscripciones");
+const reportOptions = ["Inscripciones", "Pagos", "Créditos"];
+
+const selectedPreviewReport = computed(() => {
+    switch (previewReport.value) {
+        case "Pagos":
+            return props.pagosReport;
+        case "Créditos":
+            return props.creditosReport;
+        default:
+            return props.inscripcionesReport;
+    }
+});
 
 const barCanvas = ref(null);
 const pieCanvas = ref(null);

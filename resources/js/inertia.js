@@ -52,7 +52,8 @@ createInertiaApp({
                 const page = usePage();
                 const isAdminPage = computed(() => {
                     const componentName = String(page.component ?? "");
-                    return componentName.startsWith("admin/");
+                    const isFromAdmin = page.props?.isFromAdmin === true;
+                    return componentName.startsWith("admin/") || isFromAdmin;
                 });
 
                 return () => {

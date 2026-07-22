@@ -5,11 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Carrera;
 use App\Models\DocenteDetalle;
 use App\Models\OfertaAcademica;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class PublicPageController extends Controller
 {
     public function inicio()
     {
+        if (Auth::check()) {
+            $usuario = Auth::user()->loadMissing('role');
+            $ruta = $this->rutaPorRol(optional($usuario->role)->nombre ?? '');
+
+            if ($ruta !== '/') {
+                return redirect($ruta);
+            }
+        }
+
         $carreras = Carrera::query()
             ->where('estado', true)
             ->orderBy('nombre')
@@ -33,7 +45,7 @@ class PublicPageController extends Controller
             ->take(8)
             ->get();
 
-        return view('welcome', compact('carreras', 'ofertas', 'docentes'));
+        return Inertia::render('welcome', compact('carreras', 'ofertas', 'docentes'));
     }
 
     public function carreras()
@@ -43,7 +55,7 @@ class PublicPageController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        return view('public.carreras.index', compact('carreras'));
+        return Inertia::render('public/carreras/Index', compact('carreras'));
     }
 
     public function ofertasAcademicas()
@@ -58,7 +70,7 @@ class PublicPageController extends Controller
             ->latest()
             ->get();
 
-        return view('public.ofertas.index', compact('ofertas'));
+        return Inertia::render('public/ofertas/Index', compact('ofertas'));
     }
 
     public function docentes()
@@ -68,7 +80,19 @@ class PublicPageController extends Controller
             ->latest()
             ->get();
 
-        return view('public.docentes.index', compact('docentes'));
+        return Inertia::render('public/docentes/Index', compact('docentes'));
+    }
+
+    private function rutaPorRol(string $rol): string
+    {
+        $rol = strtolower(trim($rol));
+
+        return match ($rol) {
+            'propietario', 'secretaria' => '/admin/dashboard',
+            'docente' => '/docente/inicio',
+            'alumno' => '/alumno/inicio',
+            default => '/',
+        };
     }
 
     public function inscribirse(OfertaAcademica $oferta)

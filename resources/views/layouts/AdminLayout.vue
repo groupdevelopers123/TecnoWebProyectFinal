@@ -257,6 +257,19 @@
                             ></i>
                             <span>Cerrar sesión</span>
                         </button>
+
+                        <form
+                            id="admin-logout-form"
+                            method="POST"
+                            :action="route('logout')"
+                            class="hidden"
+                        >
+                            <input
+                                type="hidden"
+                                name="_token"
+                                :value="csrfToken"
+                            />
+                        </form>
                     </div>
                 </div>
             </nav>
@@ -316,6 +329,12 @@
 
                 <slot />
             </section>
+
+            <div
+                class="fixed bottom-4 right-4 z-50 bg-transparent p-0 sm:bottom-6 sm:right-6"
+            >
+                <PageVisitCounter compact />
+            </div>
         </main>
     </div>
 </template>
@@ -323,6 +342,7 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
+import PageVisitCounter from "../partials/PageVisitCounter.vue";
 
 const page = usePage();
 const roleName = computed(() => page.props.auth?.user?.role?.nombre ?? "");
@@ -334,7 +354,14 @@ const hasErrors = computed(() => Object.keys(errors.value).length > 0);
 
 const showShell = computed(() => {
     const component = page.component || "";
-    return component.startsWith("admin/");
+    const isAdminRole = ["propietario", "secretaria"].includes(
+        String(roleName.value).toLowerCase(),
+    );
+    const isSettingsPage =
+        component.toLowerCase().includes("settings") ||
+        page.props?.isFromAdmin === true;
+
+    return component.startsWith("admin/") || (isSettingsPage && isAdminRole);
 });
 
 const pageTitle = computed(() => {
@@ -401,7 +428,18 @@ watch(
     { immediate: true },
 );
 
+const csrfToken = computed(() => {
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute("content") || ""
+    );
+});
+
 function logout() {
-    router.post(route("logout"));
+    const form = document.getElementById("admin-logout-form");
+    if (form) {
+        form.submit();
+    }
 }
 </script>

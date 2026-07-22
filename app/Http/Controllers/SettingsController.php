@@ -12,15 +12,13 @@ class SettingsController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-
-        if ($user->esAdministrativo()) {
-            return view('admin.settings', [
-                'preferences' => $user->preferences ?? [],
-            ]);
-        }
+        $roleName = $user->role?->nombre ?? '';
+        $isAdministrative = in_array(strtolower($roleName), ['propietario', 'secretaria']);
 
         return Inertia::render('settings', [
-            'preferences' => $user->preferences ?? null,
+            'preferences' => $user->preferences ?? [],
+            'isFromAdmin' => $isAdministrative,
+            'title' => 'Configuraciones',
         ]);
     }
 
@@ -35,7 +33,7 @@ class SettingsController extends Controller
             ? ($data['theme'] !== null && $data['theme'] !== '' ? $data['theme'] : null)
             : ($preferences['theme'] ?? null);
         $preferences['mode'] = $data['mode'] ?? ($preferences['mode'] ?? 'light');
-        $preferences['font_size'] = $data['font_size'] ?? ($preferences['font_size'] ?? 16);
+        $preferences['font_size'] = (int)($data['font_size'] ?? ($preferences['font_size'] ?? 16));
         $preferences['contrast'] = $data['contrast'] ?? ($preferences['contrast'] ?? 'normal');
 
         $user->preferences = $preferences;
@@ -46,6 +44,14 @@ class SettingsController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', 'Configuración guardada correctamente.');
+        // Recarga el usuario para asegurar que los datos sean frescos
+        $user = $user->fresh();
+        $roleName = $user->role?->nombre ?? '';
+        $isAdministrative = in_array(strtolower($roleName), ['propietario', 'secretaria']);
+
+        return back()
+            ->with('success', 'Configuración guardada correctamente.')
+            ->with('preferences', $user->preferences ?? [])
+            ->with('isFromAdmin', $isAdministrative);
     }
 }

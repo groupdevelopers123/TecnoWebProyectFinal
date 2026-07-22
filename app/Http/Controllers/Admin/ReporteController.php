@@ -32,6 +32,9 @@ class ReporteController extends Controller
             'pagosCreditosCantidad' => $this->pagosCreditosCantidadMensuales($inicio, $fin),
             'inscripciones' => $this->inscripcionesMensuales($inicio, $fin),
             'pagosPorConcepto' => $this->pagosPorConcepto($inicio, $fin),
+            'inscripcionesReport' => $this->reporteInscripciones($inicio, $fin),
+            'pagosReport' => $this->reportePagos($inicio, $fin),
+            'creditosReport' => $this->reporteCreditos($inicio, $fin),
         ]);
     }
 
