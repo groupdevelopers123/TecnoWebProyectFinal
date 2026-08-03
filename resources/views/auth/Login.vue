@@ -56,14 +56,23 @@
 
                 <label class="block text-sm font-bold text-slate-700">
                     Correo electrónico
-                    <input
-                        v-model="form.email"
-                        type="email"
-                        autocomplete="email"
-                        autofocus
-                        required
-                        class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
-                    />
+                    <div class="relative mt-2">
+                        <span
+                            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"
+                        >
+                            <i class="fa-solid fa-envelope text-sm"></i>
+                        </span>
+
+                        <input
+                            v-model="form.email"
+                            type="email"
+                            autocomplete="email"
+                            autofocus
+                            required
+                            placeholder="Ingresa tu correo electrónico"
+                            class="mt-0 w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                        />
+                    </div>
                 </label>
 
                 <label class="block text-sm font-bold text-slate-700">
@@ -82,7 +91,7 @@
                             required
                             autocomplete="current-password"
                             placeholder="Ingresa tu contraseña"
-                            class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                            class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-12 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
                         />
 
                         <button

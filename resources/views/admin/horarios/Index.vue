@@ -136,7 +136,7 @@
                     <tr
                         v-for="horario in horariosData"
                         :key="horario.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(horario.id)"
                     >
                         <td class="px-6 py-4">
                             <span
@@ -289,6 +289,7 @@
 <script setup>
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, reactive, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const horariosData = computed(() => page.props.horarios?.data || []);
@@ -307,6 +308,7 @@ const filters = reactive({
     dia: page.props.request?.dia || "",
     turno: page.props.request?.turno || "",
 });
+const { rowAttrs } = useRowHighlight("highlight_horario");
 let debounceTimer = null;
 
 function search() {

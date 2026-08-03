@@ -112,7 +112,7 @@
                     <tr
                         v-for="oferta in ofertasData"
                         :key="oferta.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(oferta.id)"
                     >
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
@@ -300,6 +300,7 @@
 <script setup>
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, reactive, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const ofertasData = computed(() => page.props.ofertas?.data || []);
@@ -312,6 +313,7 @@ const pagination = computed(
         },
 );
 const filters = reactive({ buscar: page.props.request?.buscar || "" });
+const { rowAttrs } = useRowHighlight("highlight_oferta");
 let debounceTimer = null;
 
 function search() {

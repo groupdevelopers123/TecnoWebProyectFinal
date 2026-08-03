@@ -119,7 +119,7 @@
                     <tr
                         v-for="inscripcion in inscripcionesData"
                         :key="inscripcion.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(inscripcion.id)"
                     >
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
@@ -329,6 +329,7 @@
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, ref, reactive, watch } from "vue";
 import MateriasModal from "../inscripcion-materias/MateriasModal.vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const inscripcionesData = computed(() => page.props.inscripciones?.data || []);
@@ -345,6 +346,7 @@ const messageSuccess = computed(() => page.props.flash?.success || "");
 const messageError = computed(() => page.props.flash?.error || "");
 const materiasModalOpen = ref(false);
 const selectedInscripcionId = ref(null);
+const { rowAttrs } = useRowHighlight("highlight_inscripcion");
 const selectedInscripcion = computed(() =>
     inscripcionesData.value.find(
         (inscripcion) => inscripcion.id === selectedInscripcionId.value,

@@ -7,6 +7,13 @@
         >
             <p class="font-bold">
                 {{ inscripcionMateria.carrera_materia?.materia?.nombre }}
+                <small class="block mt-1 text-sm text-slate-500"
+                    >Periodo:
+                    {{
+                        inscripcionMateria.carrera_materia?.periodo_numero ??
+                        "-"
+                    }}</small
+                >
             </p>
             <label class="block text-sm font-bold"
                 >Estado<select

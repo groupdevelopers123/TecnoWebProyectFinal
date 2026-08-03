@@ -58,7 +58,13 @@
                             }}</small>
                         </td>
                         <td class="px-6 py-4">
-                            {{ detail.carrera_materia?.periodo_numero ?? "-" }}
+                            <div class="text-sm font-bold">Periodo</div>
+                            <div class="mt-1 text-lg font-medium">
+                                {{
+                                    detail.carrera_materia?.periodo_numero ??
+                                    "-"
+                                }}
+                            </div>
                         </td>
                         <td class="px-6 py-4">{{ detail.estado }}</td>
                         <td class="px-6 py-4 text-right">

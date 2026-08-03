@@ -101,7 +101,7 @@
                     <tr
                         v-for="materia in materiasData"
                         :key="materia.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(materia.id)"
                     >
                         <td class="px-6 py-4 text-sm font-bold text-slate-700">
                             {{ materia.codigo }}
@@ -259,6 +259,7 @@
 <script setup>
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, reactive, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const createUrl = computed(() => route("admin.materias.create"));
@@ -272,6 +273,7 @@ const pagination = computed(
         },
 );
 const filters = reactive({ buscar: page.props.request?.buscar || "" });
+const { rowAttrs } = useRowHighlight("highlight_materia");
 let debounceTimer = null;
 
 function search() {

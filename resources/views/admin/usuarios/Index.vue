@@ -118,7 +118,8 @@
                     <tr
                         v-for="u in usuariosData"
                         :key="u.id"
-                        class="transition hover:bg-slate-50"
+                        :data-user-row="u.id"
+                        :class="rowClass(u.id)"
                     >
                         <td
                             class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-700"
@@ -204,7 +205,14 @@
 
 <script setup>
 import { Head, usePage } from "@inertiajs/vue3";
-import { ref, computed, watch } from "vue";
+import {
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    computed,
+    watch,
+} from "vue";
 
 const page = usePage();
 const initial = page.props.usuarios ?? {};
@@ -214,6 +222,11 @@ const filters = ref({
     buscar: page.props.request?.buscar ?? "",
     role_id: page.props.request?.role_id ?? "",
 });
+const highlightedUserId = ref(
+    page.props.request?.highlight_user
+        ? Number(page.props.request.highlight_user)
+        : null,
+);
 const usuariosData = ref((initial.data ?? []).map((u) => ({ ...u })));
 const pagination = ref(
     initial.pagination ?? {
@@ -223,12 +236,55 @@ const pagination = ref(
     },
 );
 
+let highlightTimer = null;
+
+function clearHighlight() {
+    highlightedUserId.value = null;
+    if (highlightTimer) {
+        clearTimeout(highlightTimer);
+        highlightTimer = null;
+    }
+}
+
+function flashHighlightedUser() {
+    if (!highlightedUserId.value) return;
+
+    highlightTimer = setTimeout(() => {
+        highlightedUserId.value = null;
+        highlightTimer = null;
+    }, 3000);
+
+    nextTick(() => {
+        const row = document.querySelector(
+            `[data-user-row="${highlightedUserId.value}"]`,
+        );
+
+        if (row) {
+            row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    });
+}
+
+onMounted(() => {
+    flashHighlightedUser();
+});
+
+onBeforeUnmount(() => {
+    clearHighlight();
+});
+
 const createUrl = computed(() => route("admin.usuarios.create"));
 function showUrl(id) {
     return route("admin.usuarios.show", id);
 }
 function editUrl(id) {
     return route("admin.usuarios.edit", id);
+}
+
+function rowClass(id) {
+    return id === highlightedUserId.value
+        ? "bg-emerald-50 outline outline-2 outline-emerald-400 outline-offset-[-2px] transition-shadow duration-300"
+        : "transition hover:bg-slate-50";
 }
 
 let debounceTimer = null;

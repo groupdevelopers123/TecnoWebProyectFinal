@@ -99,8 +99,13 @@ class UsuarioController extends Controller
 
     public function index(Request $request)
     {
+        $highlightUserId = $request->filled('highlight_user') ? (int) $request->input('highlight_user') : null;
+
         $usuarios = User::query()
             ->with('role')
+            ->when($highlightUserId, function ($query) use ($highlightUserId) {
+                $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$highlightUserId]);
+            })
             ->when(auth()->user()?->tieneRol('secretaria'), function ($query) {
                 $query->whereHas('role', function ($q) {
                     $q->whereIn('nombre', ['alumno', 'docente']);
@@ -178,6 +183,7 @@ class UsuarioController extends Controller
             'request' => [
                 'buscar' => $request->buscar,
                 'role_id' => $request->role_id,
+                'highlight_user' => $highlightUserId,
             ],
         ]);
     }

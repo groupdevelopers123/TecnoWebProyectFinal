@@ -17,7 +17,14 @@
                         :key="item.id"
                         :value="item.id"
                     >
-                        {{ item.materia?.codigo }} · {{ item.materia?.nombre }}
+                        {{
+                            (item.periodo_numero
+                                ? "P" + item.periodo_numero + " · "
+                                : "") +
+                            (item.materia?.codigo ?? "") +
+                            " · " +
+                            (item.materia?.nombre ?? "")
+                        }}
                     </option>
                 </select></label
             ><label class="block text-sm font-bold"

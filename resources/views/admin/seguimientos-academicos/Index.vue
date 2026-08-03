@@ -109,7 +109,7 @@
                     <tr
                         v-for="seguimiento in seguimientosData"
                         :key="seguimiento.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(seguimiento.id)"
                     >
                         <td class="px-6 py-4">
                             <p class="text-sm font-bold text-slate-900">
@@ -263,6 +263,7 @@
 <script setup>
 import { Head, Link, router, usePage } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const seguimientosPage = computed(
@@ -282,6 +283,7 @@ const pagination = computed(
         },
 );
 const buscarTexto = ref(page.props.request?.buscar ?? "");
+const { rowAttrs } = useRowHighlight("highlight_seguimiento");
 
 function buscarSeguimientos() {
     router.get(

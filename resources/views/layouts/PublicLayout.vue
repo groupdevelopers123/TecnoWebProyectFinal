@@ -57,6 +57,9 @@
                 </nav>
 
                 <div class="flex items-center gap-2">
+                    <div class="mr-4 hidden sm:block">
+                        <GlobalSearch />
+                    </div>
                     <template v-if="authUser">
                         <button
                             class="inline-flex rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
@@ -111,6 +114,7 @@
 <script setup>
 import { computed } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
+import GlobalSearch from "../components/GlobalSearch.vue";
 
 const page = usePage();
 const authUser = computed(() => page.props.auth?.user ?? null);

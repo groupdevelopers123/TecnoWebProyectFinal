@@ -108,7 +108,7 @@
                     <tr
                         v-for="pago in pagosData"
                         :key="pago.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(pago.id)"
                     >
                         <td class="px-6 py-4">
                             <p class="text-sm font-bold text-slate-900">
@@ -248,6 +248,7 @@
 import { Head, Link, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import PagosNav from "../partials/PagosNav.vue";
+import { useRowHighlight } from "../../../composables/useRowHighlight";
 
 const props = defineProps({
     pagos: { type: Object, default: () => ({ data: [], pagination: {} }) },
@@ -258,6 +259,7 @@ const buscarTexto = ref(props.request?.buscar ?? "");
 
 const pagosData = computed(() => props.pagos?.data ?? []);
 const pagination = computed(() => props.pagos?.pagination ?? {});
+const { rowAttrs } = useRowHighlight("highlight_pago_contado");
 
 function buscar() {
     router.get(

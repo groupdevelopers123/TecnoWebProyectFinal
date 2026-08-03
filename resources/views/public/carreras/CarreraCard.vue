@@ -1,6 +1,10 @@
 <template>
     <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100"
+        :id="`carrera-${props.carrera.id}`"
+        :class="[
+            'group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100',
+            highlighted ? 'ring-4 ring-emerald-200/40 bg-emerald-50/40' : '',
+        ]"
     >
         <div
             class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -96,7 +100,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 const props = defineProps({
     carrera: {
@@ -112,4 +116,21 @@ const duracion = computed(() => {
 });
 const regimen = computed(() => props.carrera.regimen_academico ?? "-");
 const estadoActivo = computed(() => props.carrera.estado === true);
+const highlighted = ref(false);
+
+onMounted(() => {
+    try {
+        const hash = (window.location.hash || "").replace("#", "");
+        if (hash === `carrera-${props.carrera.id}`) {
+            const el = document.getElementById(hash);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            highlighted.value = true;
+            setTimeout(() => (highlighted.value = false), 3000);
+        }
+    } catch (e) {
+        // ignore
+    }
+});
 </script>

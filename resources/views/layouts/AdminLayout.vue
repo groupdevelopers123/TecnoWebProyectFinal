@@ -23,7 +23,7 @@
                     :href="route('admin.dashboard')"
                     class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 hover:translate-x-1 hover:bg-white/10"
                     :class="
-                        isActive('/admin') || currentPath === '/admin'
+                        currentPath === '/admin' || currentPath === '/admin/'
                             ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                             : 'text-slate-300'
                     "
@@ -292,6 +292,10 @@
                             Gestión académica y administrativa del instituto
                         </p>
                     </div>
+
+                    <div class="mt-3 lg:mt-0">
+                        <GlobalSearch />
+                    </div>
                 </div>
             </header>
 
@@ -343,10 +347,18 @@
 import { computed, ref, watch } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
 import PageVisitCounter from "../partials/PageVisitCounter.vue";
+import GlobalSearch from "../components/GlobalSearch.vue";
 
 const page = usePage();
 const roleName = computed(() => page.props.auth?.user?.role?.nombre ?? "");
-const currentPath = computed(() => page.url || "/");
+const currentPath = computed(() => {
+    try {
+        return new URL(page.url, window.location.origin).pathname;
+    } catch (e) {
+        // fallback to stripping host if present
+        return (page.url || "/").replace(/^https?:\/\/[^\/]+/, "") || "/";
+    }
+});
 const flashSuccess = computed(() => page.props.flash?.success ?? "");
 const flashError = computed(() => page.props.flash?.error ?? "");
 const errors = computed(() => page.props.errors ?? {});

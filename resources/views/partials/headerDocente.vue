@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 import { Link, router, usePage } from "@inertiajs/vue3";
+import GlobalSearch from "../components/GlobalSearch.vue";
 
 const page = usePage();
 
@@ -75,6 +76,7 @@ const materiasActivas = computed(() => {
 const horariosActivas = computed(() => {
     return page.url.startsWith("/docente/horarios");
 });
+const inicioUrl = computed(() => route("docente.home"));
 
 const mostrarAviso = (mensaje) => {
     aviso.value = mensaje;
@@ -226,6 +228,30 @@ onBeforeUnmount(() => {
                 class="hidden flex-1 items-center justify-center gap-1 lg:flex"
             >
                 <Link
+                    :href="inicioUrl"
+                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition"
+                    :class="
+                        page.url.startsWith('/docente/inicio')
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-blue-700'
+                    "
+                    @click="cerrarMenus"
+                >
+                    <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M3 10.5 12 3l9 7.5" />
+                        <path d="M5 10v10h14V10" />
+                    </svg>
+
+                    Inicio
+                </Link>
+
+                <Link
                     href="/docente/materias"
                     class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition"
                     :class="
@@ -278,6 +304,10 @@ onBeforeUnmount(() => {
 
             <!-- Acciones -->
             <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+                <div class="mr-2 hidden xl:block">
+                    <GlobalSearch />
+                </div>
+
                 <!-- Mensajes -->
                 <div class="relative">
                     <button
@@ -720,6 +750,18 @@ onBeforeUnmount(() => {
                 class="border-t border-slate-100 bg-white px-4 py-3 lg:hidden"
             >
                 <div class="mx-auto grid max-w-7xl gap-2 sm:grid-cols-2">
+                    <Link
+                        :href="inicioUrl"
+                        class="boton-movil"
+                        :class="{
+                            'border-blue-200 bg-blue-50 text-blue-700':
+                                page.url.startsWith('/docente/inicio'),
+                        }"
+                        @click="cerrarMenus"
+                    >
+                        Inicio
+                    </Link>
+
                     <Link
                         href="/docente/carreras"
                         class="boton-movil"

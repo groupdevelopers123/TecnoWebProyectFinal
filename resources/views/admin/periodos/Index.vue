@@ -101,7 +101,7 @@
                     <tr
                         v-for="periodo in periodosData"
                         :key="periodo.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(periodo.id)"
                     >
                         <td class="px-6 py-4">
                             <p class="text-sm font-bold text-slate-900">
@@ -240,6 +240,7 @@
 <script setup>
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { computed, reactive, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 const createUrl = computed(() => route("admin.periodos-academicos.create"));
@@ -253,6 +254,7 @@ const pagination = computed(
         },
 );
 const filters = reactive({ buscar: page.props.request?.buscar || "" });
+const { rowAttrs } = useRowHighlight("highlight_periodo");
 let debounceTimer = null;
 
 function search() {

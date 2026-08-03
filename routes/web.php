@@ -298,6 +298,10 @@ Route::post('/pagofacil/callback', PagoFacilCallbackController::class)
 Route::get('/', [PublicPageController::class, 'inicio'])
     ->name('welcome');
 
+// Global search (publicly accessible)
+use App\Http\Controllers\SearchController;
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+
 Route::get('/carreras', [PublicPageController::class, 'carreras'])
     ->name('public.carreras.index');
 

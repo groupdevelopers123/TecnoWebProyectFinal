@@ -126,7 +126,7 @@
                     <tr
                         v-for="aula in aulasData"
                         :key="aula.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(aula.id)"
                     >
                         <td
                             class="whitespace-nowrap px-6 py-4 text-sm font-bold text-slate-700"
@@ -226,6 +226,7 @@
 <script setup>
 import { Head, usePage, router } from "@inertiajs/vue3";
 import { ref, computed, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 
@@ -245,6 +246,7 @@ const pagination = ref(
         total: aulasData.value.length,
     },
 );
+const { rowAttrs } = useRowHighlight("highlight_aula");
 
 const createUrl = computed(() => route("admin.aulas.create"));
 

@@ -102,7 +102,7 @@
                     <tr
                         v-for="carrera in carrerasData"
                         :key="carrera.id"
-                        class="transition hover:bg-slate-50"
+                        v-bind="rowAttrs(carrera.id)"
                     >
                         <td class="px-6 py-4 text-sm font-bold text-slate-700">
                             {{ carrera.codigo }}
@@ -528,6 +528,7 @@
 <script setup>
 import { Head, usePage } from "@inertiajs/vue3";
 import { computed, reactive, ref, watch } from "vue";
+import { useRowHighlight } from "../../composables/useRowHighlight";
 
 const page = usePage();
 
@@ -545,6 +546,7 @@ const pagination = ref(
         total: carrerasData.value.length,
     },
 );
+const { rowAttrs } = useRowHighlight("highlight_carrera");
 const materiasGlobales = ref(
     (page.props.materias ?? []).map((item) => ({ ...item })),
 );
