@@ -226,26 +226,94 @@
             </div>
 
             <div
+                v-if="form.metodo_pago === 'QR'"
+                class="md:col-span-2 rounded-3xl border border-emerald-200 bg-emerald-50 p-4"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p
+                            class="text-sm font-black uppercase tracking-[0.2em] text-emerald-700"
+                        >
+                            PagoFácil
+                        </p>
+                        <p class="mt-1 text-xs text-emerald-700">
+                            La confirmación se valida con el callback real del
+                            servicio.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        @click="generarQrPagoFacil"
+                        :disabled="procesandoQr"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        <i class="fa-solid fa-qrcode text-xs"></i>
+                        {{ procesandoQr ? "Generando..." : "Generar QR" }}
+                    </button>
+                </div>
+
+                <div
+                    v-if="qrUrl"
+                    class="mt-4 rounded-2xl border border-white/60 bg-white p-4 text-center"
+                >
+                    <img
+                        :src="qrUrl"
+                        alt="QR PagoFácil"
+                        class="mx-auto h-52 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+                    />
+
+                    <p class="mt-3 text-xs font-bold uppercase text-slate-500">
+                        Payment Number
+                    </p>
+                    <p class="mt-1 text-sm font-bold text-slate-800">
+                        {{ paymentNumber || "No disponible" }}
+                    </p>
+
+                    <div
+                        class="mt-4 rounded-2xl border px-3 py-2 text-left text-xs font-medium"
+                        :class="estadoBoxClasses"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="font-bold uppercase tracking-[0.2em]">
+                                Estado
+                            </span>
+                            <span>{{ estadoPago }}</span>
+                        </div>
+                        <p class="mt-2 whitespace-pre-line">
+                            {{ mensajeEstado }}
+                        </p>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap justify-center gap-3">
+                        <button
+                            type="button"
+                            @click="verificarManual"
+                            :disabled="verificando"
+                            class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            <i class="fa-solid fa-rotate text-[10px]"></i>
+                            {{
+                                verificando
+                                    ? "Verificando..."
+                                    : "Verificar ahora"
+                            }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div
                 class="flex flex-wrap gap-3 border-t border-slate-200 pt-6 md:col-span-2"
             >
                 <button
-                    v-if="form.metodo_pago === 'QR'"
+                    v-if="form.metodo_pago !== 'QR'"
                     type="button"
                     @click="submit('guardar')"
                     class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700"
                 >
                     <i class="fa-solid fa-floppy-disk text-xs"></i>
                     Guardar pago
-                </button>
-
-                <button
-                    v-if="form.metodo_pago === 'QR'"
-                    type="button"
-                    @click="submit('generar_qr')"
-                    class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700"
-                >
-                    <i class="fa-solid fa-qrcode text-xs"></i>
-                    Generar QR PagoFácil
                 </button>
 
                 <button
@@ -270,8 +338,8 @@
 </template>
 
 <script setup>
-import { Link, useForm, usePage } from "@inertiajs/vue3";
-import { computed, watch } from "vue";
+import { Link, router, useForm, usePage } from "@inertiajs/vue3";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 
 const props = defineProps({
     pago: { type: Object, default: () => ({}) },
@@ -285,6 +353,36 @@ const props = defineProps({
 const page = usePage();
 const metodosPago = ["Efectivo", "Transferencia", "QR"];
 const estadosPago = ["Pendiente", "Confirmado", "Anulado", "Fallido"];
+const csrfToken =
+    document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute("content") ?? "";
+
+const qrUrl = ref("");
+const paymentNumber = ref("");
+const estadoUrl = ref("");
+const consultarUrl = ref("");
+const estadoPago = ref("Pendiente");
+const mensajeEstado = ref(
+    "El sistema está verificando el pago con el callback real de PagoFácil.",
+);
+const tipoEstado = ref("info");
+const verificando = ref(false);
+const procesandoQr = ref(false);
+const intervaloVerificacion = ref(null);
+const confirmacionEmitida = ref(false);
+
+const estadoBoxClasses = computed(() => {
+    if (confirmacionEmitida.value || estadoPago.value === "Confirmado") {
+        return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    }
+
+    if (tipoEstado.value === "error") {
+        return "border-red-200 bg-red-50 text-red-700";
+    }
+
+    return "border-slate-200 bg-slate-50 text-slate-700";
+});
 
 const form = useForm({
     inscripcion_id: props.pago?.inscripcion_id ?? null,
@@ -322,6 +420,223 @@ watch(
     { immediate: true, deep: true },
 );
 
+watch(
+    () => form.metodo_pago,
+    (valor) => {
+        if (valor === "QR") {
+            form.estado = "Pendiente";
+            return;
+        }
+
+        limpiarIntervalo();
+    },
+);
+
+function limpiarIntervalo() {
+    if (intervaloVerificacion.value) {
+        clearInterval(intervaloVerificacion.value);
+        intervaloVerificacion.value = null;
+    }
+}
+
+function iniciarAutoVerificacion() {
+    limpiarIntervalo();
+
+    intervaloVerificacion.value = setInterval(() => {
+        verificarEstado(false);
+    }, 5000);
+}
+
+function esEstadoConfirmado(estado) {
+    const valor = String(estado ?? "")
+        .toLowerCase()
+        .trim();
+    return (
+        valor === "confirmado" ||
+        valor === "pagado" ||
+        valor === "2" ||
+        valor === "true"
+    );
+}
+
+function confirmarEstado() {
+    if (confirmacionEmitida.value) {
+        return;
+    }
+
+    confirmacionEmitida.value = true;
+    limpiarIntervalo();
+    estadoPago.value = "Confirmado";
+    form.estado = "Confirmado";
+    tipoEstado.value = "success";
+    mensajeEstado.value =
+        "Pago confirmado correctamente por el callback real de PagoFácil.";
+
+    router.visit(route("admin.pago-contados.index"));
+}
+
+async function verificarEstado(mostrarCarga = true) {
+    if (!estadoUrl.value || confirmacionEmitida.value) {
+        return;
+    }
+
+    if (mostrarCarga) {
+        verificando.value = true;
+    }
+
+    try {
+        const response = await fetch(estadoUrl.value, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                Accept: "application/json",
+            },
+        });
+
+        const texto = await response.text();
+        const data = texto ? JSON.parse(texto) : null;
+
+        if (!response.ok || !data?.ok) {
+            return;
+        }
+
+        const estado =
+            data.pago?.estado ?? data.cuota?.estado ?? estadoPago.value;
+        estadoPago.value = estado;
+
+        if (esEstadoConfirmado(estado)) {
+            confirmarEstado();
+            return;
+        }
+
+        tipoEstado.value = "info";
+        mensajeEstado.value =
+            "Aún no aparece la confirmación automática del callback. El sistema sigue verificando en segundo plano.";
+    } catch (error) {
+        tipoEstado.value = "error";
+        mensajeEstado.value =
+            error?.message ?? "No se pudo verificar el estado automáticamente.";
+    } finally {
+        verificando.value = false;
+    }
+}
+
+async function verificarManual() {
+    if (!consultarUrl.value || confirmacionEmitida.value) {
+        return;
+    }
+
+    verificando.value = true;
+    tipoEstado.value = "info";
+    mensajeEstado.value = "Consultando PagoFácil manualmente...";
+
+    try {
+        const formData = new FormData();
+        formData.append("_token", csrfToken);
+
+        const response = await fetch(consultarUrl.value, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                Accept: "application/json",
+            },
+        });
+
+        const texto = await response.text();
+        const data = texto ? JSON.parse(texto) : null;
+
+        if (!response.ok || !data?.ok) {
+            throw new Error(data?.message || "No se pudo consultar el pago.");
+        }
+
+        const estado =
+            data.pago?.estado ?? data.cuota?.estado ?? estadoPago.value;
+        estadoPago.value = estado;
+
+        if (esEstadoConfirmado(estado)) {
+            confirmarEstado();
+            return;
+        }
+
+        tipoEstado.value = "info";
+        mensajeEstado.value =
+            "El pago todavía no está confirmado. El callback automático seguirá intentando detectar el cambio.";
+    } catch (error) {
+        tipoEstado.value = "error";
+        mensajeEstado.value =
+            error?.message ?? "No se pudo consultar manualmente el pago.";
+    } finally {
+        verificando.value = false;
+    }
+}
+
+async function generarQrPagoFacil() {
+    if (form.metodo_pago !== "QR") {
+        return;
+    }
+
+    procesandoQr.value = true;
+    tipoEstado.value = "info";
+    mensajeEstado.value =
+        "Generando QR con PagoFácil y esperando la confirmación por callback.";
+
+    try {
+        const formData = new FormData();
+
+        formData.append("inscripcion_id", String(form.inscripcion_id ?? ""));
+        formData.append(
+            "concepto_pago_id",
+            String(form.concepto_pago_id ?? ""),
+        );
+        formData.append("monto_pagado", String(form.monto_pagado ?? ""));
+        formData.append("fecha_pago", String(form.fecha_pago ?? ""));
+        formData.append("metodo_pago", String(form.metodo_pago ?? ""));
+        formData.append(
+            "correo_solicitante",
+            String(form.correo_solicitante ?? ""),
+        );
+        formData.append("observacion", String(form.observacion ?? ""));
+        formData.append("estado", "Pendiente");
+        formData.append("accion", "generar_qr");
+        formData.append("_token", csrfToken);
+
+        const response = await fetch(props.submitUrl, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                Accept: "application/json",
+            },
+        });
+
+        const texto = await response.text();
+        const data = texto ? JSON.parse(texto) : null;
+
+        if (!response.ok || !data?.ok) {
+            throw new Error(data?.message || "No se pudo generar el QR.");
+        }
+
+        pagoGenerado(data.pago);
+        iniciarAutoVerificacion();
+    } catch (error) {
+        tipoEstado.value = "error";
+        mensajeEstado.value = error?.message ?? "No se pudo generar el QR.";
+    } finally {
+        procesandoQr.value = false;
+    }
+}
+
+function pagoGenerado(pago) {
+    qrUrl.value = pago?.qr_url ?? "";
+    paymentNumber.value = pago?.payment_number ?? "";
+    estadoUrl.value = pago?.estado_url ?? "";
+    consultarUrl.value = pago?.consultar_url ?? "";
+    estadoPago.value = "Pendiente";
+    confirmacionEmitida.value = false;
+    mensajeEstado.value =
+        "QR generado. Esperando la confirmación automática del callback real de PagoFácil.";
+}
+
 function submit(accion = "guardar") {
     form.accion = accion;
 
@@ -332,6 +647,10 @@ function submit(accion = "guardar") {
 
     form.post(props.submitUrl);
 }
+
+onBeforeUnmount(() => {
+    limpiarIntervalo();
+});
 
 function inscripcionLabel(inscripcion) {
     const alumno =
