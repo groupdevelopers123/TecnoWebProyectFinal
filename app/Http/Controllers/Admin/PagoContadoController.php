@@ -335,7 +335,39 @@ class PagoContadoController extends Controller
                     'ofertaAcademica.periodoAcademico',
                 ])
                 ->latest()
-                ->get(),
+                ->get()
+                ->map(function (Inscripcion $inscripcion) {
+                    $alumno = $inscripcion->alumnoDetalle?->user;
+                    $oferta = $inscripcion->ofertaAcademica;
+                    $carrera = $oferta?->carrera;
+
+                    $userPayload = $alumno ? [
+                        'nombres' => $alumno->nombres,
+                        'apellidos' => $alumno->apellidos,
+                        'nombre' => trim(($alumno->nombres ?? '') . ' ' . ($alumno->apellidos ?? '')),
+                        'ci' => $alumno->ci,
+                    ] : null;
+
+                    $ofertaPayload = [
+                        'id' => $oferta?->id,
+                        'nombre' => $oferta?->nombre,
+                        'carrera' => $carrera ? [
+                            'id' => $carrera->id,
+                            'nombre' => $carrera->nombre,
+                            'codigo' => $carrera->codigo,
+                        ] : null,
+                    ];
+
+                    return [
+                        'id' => $inscripcion->id,
+                        'inscripcion_id' => $inscripcion->id,
+                        'alumnoDetalle' => ['user' => $userPayload],
+                        'alumno_detalle' => ['user' => $userPayload],
+                        'ofertaAcademica' => $ofertaPayload,
+                        'oferta_academica' => $ofertaPayload,
+                    ];
+                })
+                ->values(),
 
             'conceptos' => ConceptoPago::query()
                 ->where('estado', 'Activo')

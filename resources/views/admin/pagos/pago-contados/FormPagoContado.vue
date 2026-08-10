@@ -334,9 +334,27 @@ function submit(accion = "guardar") {
 }
 
 function inscripcionLabel(inscripcion) {
-    const alumno = inscripcion.alumnoDetalle?.user;
-    const nombre = `${alumno?.nombres ?? ""} ${alumno?.apellidos ?? ""}`.trim();
-    return nombre || `Inscripción #${inscripcion.id}`;
+    const alumno =
+        inscripcion.alumnoDetalle?.user ??
+        inscripcion.alumno_detalle?.user ??
+        null;
+
+    const oferta =
+        inscripcion.ofertaAcademica?.nombre ??
+        inscripcion.oferta_academica?.nombre ??
+        null;
+
+    const carrera =
+        inscripcion.ofertaAcademica?.carrera?.nombre ??
+        inscripcion.oferta_academica?.carrera?.nombre ??
+        null;
+
+    const nombre = `${alumno?.nombres ?? alumno?.nombre ?? ""} ${
+        alumno?.apellidos ?? ""
+    }`.trim();
+
+    const detalle = oferta || carrera || `Inscripción #${inscripcion.id}`;
+    return nombre ? `${nombre} - ${detalle}` : detalle;
 }
 
 function capitalizar(valor) {

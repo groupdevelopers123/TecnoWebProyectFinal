@@ -76,6 +76,11 @@
                             >
                                 Estado
                             </th>
+                            <th
+                                class="px-5 py-4 text-right text-xs font-black uppercase tracking-wider text-slate-500"
+                            >
+                                Acciones
+                            </th>
                         </tr>
                     </thead>
 
@@ -115,11 +120,44 @@
                                     {{ capitalizar(cuota.estado_cuota) }}
                                 </span>
                             </td>
+
+                            <td class="px-5 py-4">
+                                <div class="flex justify-end gap-2">
+                                    <Link
+                                        :href="
+                                            route(
+                                                'admin.pago-cuotas.show',
+                                                cuota.id,
+                                            )
+                                        "
+                                        class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-200"
+                                        :aria-label="`Ver cuota ${cuota.id}`"
+                                    >
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </Link>
+
+                                    <Link
+                                        v-if="cuota.estado_cuota !== 'pagado'"
+                                        :href="
+                                            route(
+                                                'admin.pago-cuotas.edit',
+                                                cuota.id,
+                                            )
+                                        "
+                                        class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition hover:-translate-y-0.5 hover:bg-emerald-100"
+                                        :aria-label="`Pagar cuota ${cuota.id}`"
+                                    >
+                                        <i
+                                            class="fa-solid fa-money-bill-wave text-sm"
+                                        ></i>
+                                    </Link>
+                                </div>
+                            </td>
                         </tr>
 
                         <tr v-if="!cuotas?.length">
                             <td
-                                colspan="5"
+                                colspan="6"
                                 class="px-6 py-12 text-center text-sm text-slate-500"
                             >
                                 Este crédito todavía no tiene cuotas generadas.
@@ -133,6 +171,8 @@
 </template>
 
 <script setup>
+import { Link } from "@inertiajs/vue3";
+
 const props = defineProps({
     credito: { type: Object, default: () => ({}) },
     cuotas: { type: Array, default: () => [] },
